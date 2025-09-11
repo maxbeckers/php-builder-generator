@@ -115,7 +115,7 @@ The `#[Builder]` attribute supports several options to customize the generated b
     exclude: ['password'],                    // Properties to exclude from builder
     include: ['name', 'email'],               // Only include these properties (overrides exclude)
     immutable: false,                         // Treat target class as immutable (default: false)
-    builderMethod: 'create'                   // Name of the static factory method (default: 'create')
+    builderMethod: 'builder'                   // Name of the static factory method (default: 'builder')
 )]
 class User { ... }
 ```
@@ -131,7 +131,7 @@ class User { ... }
 | `exclude` | `array` | `[]` | Property names to exclude from the builder |
 | `include` | `array` | `[]` | Only include these properties (if set, overrides exclude) |
 | `immutable` | `bool` | `false` | Whether to treat the target class as immutable |
-| `builderMethod` | `string` | `'create'` | Name of the static factory method |
+| `builderMethod` | `string` | `'builder'` | Name of the static factory method |
 
 ## CLI Commands
 
