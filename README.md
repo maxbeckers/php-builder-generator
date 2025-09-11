@@ -7,7 +7,7 @@ Generate builder patterns for PHP classes using attributes.
 
 ## Features
 
-- 🚀 **Attribute-based**: Use PHP 8.2+ attributes to mark classes for builder generation
+- 🚀 **Attribute-based**: Use PHP attributes to mark classes for builder generation
 - 🔧 **Flexible configuration**: Customize output directory, namespaces, and generation options
 - 📁 **Smart imports**: Automatically manages use statements and namespace handling
 - 🎯 **Type-safe**: Preserves all type information from your original classes
