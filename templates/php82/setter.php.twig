@@ -1,0 +1,12 @@
+    public function {{ camel_case(property.name) }}({{ property.formattedType }} ${{ property.name }}){% if builder_attribute.fluent %}: self{% else %}: void{% endif %}
+
+    {
+        $this->{{ property.name }} = ${{ property.name }};
+{% if property.needsTracking %}
+    $this->{{ property.name }}Set = true;
+{% endif %}
+{% if builder_attribute.fluent %}
+
+        return $this;
+{% endif %}
+    }

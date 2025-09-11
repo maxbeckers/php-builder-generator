@@ -1,0 +1,39 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ builder_namespace }};
+
+{% for import in imports %}
+use {{ import }};
+{% endfor %}
+
+/**
+ * Builder for {{ target_class_name }}
+ * 
+ * Generated automatically by php-builder-generator
+ * Do not modify this file manually
+ */
+final class {{ builder_class_name }}
+{
+{% for property in properties %}
+    private {{ property.formattedType }} ${{ property.name }}{% if property.hasDefaultValue %} = {{ php_export(property.defaultValue) }}{% endif %};
+{% if property.needsTracking %}
+    private bool ${{ property.name }}Set = false;
+{% endif %}
+
+{% endfor %}
+{% for property in properties %}
+{% include 'setter.php.twig' with {'property': property} %}
+
+{% endfor %}
+{% include 'build.php.twig' with {
+        'target_class': target_class_name,
+        'properties': properties,
+        'use_constructor': use_constructor
+    } %}
+
+{% include 'factory-method.php.twig' with {
+        'method_name': builder_attribute.builderMethod
+    } %}
+}

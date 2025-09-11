@@ -1,0 +1,68 @@
+    /**
+     * Build the {{ target_class }} instance
+     *
+     * @return {{ target_class }}
+     */
+    public function build(): {{ target_class }}
+    {
+{% if use_constructor %}
+        $args = [];
+{% for property in properties %}
+{% if property.constructorParam %}
+{% if property.needsTracking %}
+        if ($this->{{ property.name }}Set) {
+            $args['{{ property.name }}'] = $this->{{ property.name }};
+        }
+{% else %}
+        $args['{{ property.name }}'] = $this->{{ property.name }};
+{% endif %}
+{% endif %}
+{% endfor %}
+
+        $instance = new {{ target_class }}(...$args);
+{% for property in properties %}
+{% if not property.constructorParam %}
+{% if property.accessStrategy.name == 'PROPERTY' %}
+{% if property.needsTracking %}
+        if ($this->{{ property.name }}Set) {
+            $instance->{{ property.name }} = $this->{{ property.name }};
+        }
+{% else %}
+        $instance->{{ property.name }} = $this->{{ property.name }};
+{% endif %}
+{% elseif property.accessStrategy.name == 'SETTER' %}
+{% if property.needsTracking %}
+        if ($this->{{ property.name }}Set) {
+            $instance->{{ property.setterMethod }}($this->{{ property.name }});
+        }
+{% else %}
+        $instance->{{ property.setterMethod }}($this->{{ property.name }});
+{% endif %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% else %}
+        $instance = new {{ target_class }}();
+{% for property in properties %}
+{% if property.accessStrategy.name == 'PROPERTY' %}
+{% if property.needsTracking %}
+        if ($this->{{ property.name }}Set) {
+            $instance->{{ property.name }} = $this->{{ property.name }};
+        }
+{% else %}
+        $instance->{{ property.name }} = $this->{{ property.name }};
+{% endif %}
+{% elseif property.accessStrategy.name == 'SETTER' %}
+{% if property.needsTracking %}
+        if ($this->{{ property.name }}Set) {
+            $instance->{{ property.setterMethod }}($this->{{ property.name }});
+        }
+{% else %}
+        $instance->{{ property.setterMethod }}($this->{{ property.name }});
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+        
+        return $instance;
+    }

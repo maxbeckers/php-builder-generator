@@ -1,0 +1,23 @@
+{
+  "name": "test/builder-example",
+  "minimum-stability": "dev",
+  "require": {
+    "maxbeckers/php-builder-generator": "*"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Test\\": "src/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "maxbeckers/php-builder-generator": true
+    }
+  }
+}
