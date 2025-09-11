@@ -14,6 +14,8 @@ Generate builder patterns for PHP classes using attributes.
 - 🏗️ **Constructor-aware**: Intelligently uses constructor parameters when available
 - 🔄 **Fluent interface**: Generates chainable builder methods by default
 - 📝 **Template-driven**: Uses Twig templates for customizable code generation
+- 🏃 **Runtime performance**: Does not use Reflection and generates the Builders during composer install/update or with a command
+- 📝 **IDE friendly**: Thanks to pre-generated classes you have full IDE support 
 
 ## Installation
 
@@ -63,7 +65,7 @@ Using the CLI command:
 use App\Model\User;
 use App\Model\Generated\UserBuilder;
 
-$user = UserBuilder::create()
+$user = UserBuilder::builder()
     ->setName('John Doe')
     ->setEmail('john@example.com')
     ->setAge(30)
@@ -192,7 +194,7 @@ class Product
 Generated builder usage:
 
 ```php
-$product = ProductBuilder::create()
+$product = ProductBuilder::builder()
     ->setName('Laptop')
     ->setPrice(999.99)
     ->setDescription('High-performance laptop')
@@ -217,7 +219,7 @@ class Order
 The builder will use constructor parameters:
 
 ```php
-$order = OrderBuilder::create()
+$order = OrderBuilder::builder()
     ->setId('ORD-123')
     ->setCustomerEmail('customer@example.com')
     ->setItems([$product1, $product2])
@@ -264,7 +266,7 @@ The builder handles complex types and automatically manages imports:
 ```php
 use App\Model\Generated\BlogPostBuilder;
 
-$post = BlogPostBuilder::create()
+$post = BlogPostBuilder::builder()
     ->setTitle('My Blog Post')
     ->setContent('This is the content...')
     ->setAuthor($user)
