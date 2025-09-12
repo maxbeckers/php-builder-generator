@@ -14,7 +14,7 @@ Generate builder patterns for PHP classes using attributes.
 - 🏗️ **Constructor-aware**: Intelligently uses constructor parameters when available
 - 🔄 **Fluent interface**: Generates chainable builder methods by default
 - 📝 **Template-driven**: Uses Twig templates for customizable code generation
-- 🏃 **Runtime performance**: Does not use Reflection and generates the Builders during composer install/update or with a command
+- 🏃 **Runtime performance**: Does not use Reflection and generates builders during composer install/update or with a command
 - 📝 **IDE friendly**: Thanks to pre-generated classes you have full IDE support 
 
 ## Installation
@@ -24,6 +24,22 @@ Install via Composer:
 ```bash
 composer require maxbeckers/php-builder-generator --dev
 ```
+
+### Allow Plugin in Composer
+
+Add the plugin to your `composer.json` allowed plugins:
+
+```json
+{
+  "config": {
+    "allow-plugins": {
+      "maxbeckers/php-builder-generator": true
+    }
+  }
+}
+```
+
+This configuration is required to allow the plugin to automatically generate builders during composer install/update operations.
 
 ## Basic Usage
 
@@ -108,14 +124,14 @@ The `#[Builder]` attribute supports several options to customize the generated b
 
 ```php
 #[Builder(
-    className: 'CustomUserBuilder',           // Custom builder class name
-    namespace: 'App\\Builders',               // Custom namespace for the builder
-    fluent: true,                             // Enable fluent interface (default: true)
-    generateFactory: false,                   // Generate a factory class (default: false)
-    exclude: ['password'],                    // Properties to exclude from builder
-    include: ['name', 'email'],               // Only include these properties (overrides exclude)
-    immutable: false,                         // Treat target class as immutable (default: false)
-    builderMethod: 'builder'                   // Name of the static factory method (default: 'builder')
+    className: 'CustomUserBuilder',          // Custom builder class name
+    namespace: 'App\\Builders',              // Custom namespace for the builder
+    fluent: true,                            // Enable fluent interface (default: true)
+    generateFactory: false,                  // Generate a factory class (default: false)
+    exclude: ['password'],                   // Properties to exclude from builder
+    include: ['name', 'email'],              // Only include these properties (overrides exclude)
+    immutable: false,                        // Treat target class as immutable (default: false)
+    builderMethod: 'builder'                 // Name of the static factory method (default: 'builder')
 )]
 class User { ... }
 ```
@@ -172,7 +188,7 @@ Remove all generated files:
 |--------|------------------------------------------------------|
 | `--src-dirs` | Comma-separated list of source directories           |
 | `--output-dir` | Directory for generated files                        |
-| `--namespace-suffix` | Namespace Suffix to generate BUilders like \\Builder |
+| `--namespace-suffix` | Namespace suffix to generate builders like `\\Builder` |
 | `--generator-config` | Generator configuration |
 | `--php-version` | PHP version to target (currently only 8.2 supported) |
 | `--clean` | Remove generated files before generating             |
@@ -321,6 +337,13 @@ vendor/generated/php-builder-generator/
 - PHP 8.2 or higher
 - Composer 2.0 or higher
 
+## Roadmap
+
+- [ ] Support for PHP 8.3+ features
+- [ ] Custom setter method names
+- [ ] Custom constructor support
+- [ ] Additional template customization options
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
@@ -337,12 +360,9 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 - Update documentation for any new configuration options
 - Ensure backwards compatibility
 
-## Roadmap
+## Show Your Support
 
-- [ ] Support for PHP 8.3+ features
-- [ ] Custom setter method names
-- [ ] Custom constructor support
-- [ ] ...
+If you find this package helpful, I would be happy to get a ⭐ star on [GitHub](https://github.com/maxbeckers/php-builder-generator)! It helps others discover the project and motivates continued development.
 
 ## License
 
@@ -354,4 +374,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ for php developers**
+**Built with ❤️ for PHP developers**
