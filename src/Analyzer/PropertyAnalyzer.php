@@ -66,7 +66,7 @@ class PropertyAnalyzer
 
     private static function getSetterMethod(ReflectionClass $class, string $propertyName): ?\ReflectionMethod
     {
-        $setterNames = ['set' . ucfirst($propertyName), 'is' . ucfirst($propertyName)];
+        $setterNames = ['set' . ucfirst($propertyName), 'with' . ucfirst($propertyName)];
 
         foreach ($setterNames as $setterName) {
             if ($class->hasMethod($setterName)) {
@@ -81,10 +81,11 @@ class PropertyAnalyzer
     }
 
     private static function determineAccessStrategy(
-        ReflectionProperty $property,
+        ReflectionProperty    $property,
         ?\ReflectionParameter $constructorParam,
-        ?\ReflectionMethod $setterMethod
-    ): PropertyAccessStrategy {
+        ?\ReflectionMethod    $setterMethod
+    ): PropertyAccessStrategy
+    {
         if ($property->isReadOnly() && $constructorParam) {
             return PropertyAccessStrategy::CONSTRUCTOR;
         }

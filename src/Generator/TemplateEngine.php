@@ -34,30 +34,8 @@ class TemplateEngine
 
     private function addCustomFunctions(): void
     {
-        $this->twig->addFunction(new TwigFunction('pascal_case', function (string $text): string {
-            return str_replace(' ', '', ucwords(str_replace(['_', '-'], ' ', $text)));
-        }));
-
         $this->twig->addFunction(new TwigFunction('camel_case', function (string $text): string {
             return lcfirst(str_replace(' ', '', ucwords(str_replace(['_', '-'], ' ', $text))));
-        }));
-
-        $this->twig->addFunction(new TwigFunction('format_type', function (?string $type): string {
-            if ($type === null) {
-                return 'mixed';
-            }
-
-            return match($type) {
-                'int' => 'int',
-                'float' => 'float',
-                'string' => 'string',
-                'bool' => 'bool',
-                'array' => 'array',
-                'object' => 'object',
-                'mixed' => 'mixed',
-                'null' => 'null',
-                default => $type
-            };
         }));
 
         $this->twig->addFunction(new TwigFunction('php_export', function (mixed $value): string {
