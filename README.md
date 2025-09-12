@@ -4,30 +4,28 @@ Generate builder patterns for PHP classes using attributes.
 
 [![PHP Version](https://img.shields.io/badge/php-%5E8.2-blue)](https://php.net)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Tests](https://github.com/maxbeckers/php-builder-generator/workflows/Tests/badge.svg)](https://github.com/maxbeckers/php-builder-generator/actions)
 
 ## Features
 
 - 🚀 **Attribute-based**: Use PHP attributes to mark classes for builder generation
-- 🔧 **Flexible configuration**: Customize output directory, namespaces, and generation options
-- 📁 **Smart imports**: Automatically manages use statements and namespace handling
-- 🎯 **Type-safe**: Preserves all type information from your original classes
-- 🏗️ **Constructor-aware**: Intelligently uses constructor parameters when available
-- 🔄 **Fluent interface**: Generates chainable builder methods by default
-- 📝 **Template-driven**: Uses Twig templates for customizable code generation
-- 🏃 **Runtime performance**: Does not use Reflection and generates builders during composer install/update or with a command
-- 📝 **IDE friendly**: Thanks to pre-generated classes you have full IDE support 
+- 🏃 **Zero Runtime Overhead**: Builders generated at build time, not runtime
+- 📝 **IDE Friendly**: Full autocomplete and type checking support
+- 🔧 **Highly Configurable**: Customize every aspect of generation
+- 🎯 **Type Safe**: Preserves all type information from original classes
+- 🏗️ **Constructor Aware**: Intelligently handles constructor parameters
 
-## Installation
+## Quick Start
 
-Install via Composer:
+### 1. Install
 
 ```bash
 composer require maxbeckers/php-builder-generator --dev
 ```
 
-### Allow Plugin in Composer
+### 2. Configure Composer
 
-Add the plugin to your `composer.json` allowed plugins:
+Add to your `composer.json`:
 
 ```json
 {
@@ -39,11 +37,7 @@ Add the plugin to your `composer.json` allowed plugins:
 }
 ```
 
-This configuration is required to allow the plugin to automatically generate builders during composer install/update operations.
-
-## Basic Usage
-
-### 1. Mark your class with the Builder attribute
+### 3. Add Builder Attribute
 
 ```php
 <?php
@@ -59,306 +53,45 @@ class User
         public string $name,
         public string $email,
         public ?int $age = null,
-        public array $roles = [],
-        public bool $active = true
+        public array $roles = []
     ) {}
 }
 ```
 
-### 2. Generate builders
+### 4. Generate & Use
 
-Using the CLI command:
+Builders are automatically generated during `composer install/update`, or run:
 
 ```bash
 ./vendor/bin/php-builder-generator
 ```
 
-### 3. Use the generated builder
+Use your generated builder:
 
 ```php
-<?php
-
-use App\Model\User;
-use App\Model\Generated\UserBuilder;
-
 $user = UserBuilder::builder()
-    ->setName('John Doe')
-    ->setEmail('john@example.com')
-    ->setAge(30)
-    ->setRoles(['admin', 'user'])
-    ->setActive(true)
+    ->name('John Doe')
+    ->email('john@example.com')
+    ->age(30)
+    ->roles(['admin'])
     ->build();
 ```
 
-## Configuration
+## Documentation
 
-Add configuration to your `composer.json`:
+📚 **[Complete Documentation](docs/index.md)**
 
-```json
-{
-    "extra": {
-        "php-builder-generator": {
-            "src-dirs": ["src", "app"],
-            "output-dir": "vendor/generated/php-builder-generator/",
-            "namespace-suffix": "\\Builder",
-            "php-version": "8.2",
-            "generator-config": {}
-        }
-    }
-}
-```
+### Quick Links
 
-### Configuration Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `src-dirs` | `array` | `["src"]` | Directories to scan for classes with Builder attributes |
-| `output-dir` | `string` | `"vendor/generated/php-builder-generator/"` | Directory where generated builders will be saved |
-| `namespace-suffix` | `string` | `""` | Suffix to append to the original namespace for generated classes |
-| `php-version` | `string` | `"8.2"` | PHP version to target (currently only 8.2 supported) |
-| `generator-config` | `array` | `{}` | Additional configuration for specific generators |
-
-### Builder Attribute Options
-
-The `#[Builder]` attribute supports several options to customize the generated builder:
-
-```php
-#[Builder(
-    className: 'CustomUserBuilder',          // Custom builder class name
-    namespace: 'App\\Builders',              // Custom namespace for the builder
-    fluent: true,                            // Enable fluent interface (default: true)
-    generateFactory: false,                  // Generate a factory class (default: false)
-    exclude: ['password'],                   // Properties to exclude from builder
-    include: ['name', 'email'],              // Only include these properties (overrides exclude)
-    immutable: false,                        // Treat target class as immutable (default: false)
-    builderMethod: 'builder'                 // Name of the static factory method (default: 'builder')
-)]
-class User { ... }
-```
-
-### Attribute Options Reference
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `className` | `?string` | `null` | Custom name for the generated builder class |
-| `namespace` | `?string` | `null` | Custom namespace for the generated builder |
-| `fluent` | `bool` | `true` | Whether setter methods should return `self` for chaining |
-| `generateFactory` | `bool` | `false` | Generate an additional factory class |
-| `exclude` | `array` | `[]` | Property names to exclude from the builder |
-| `include` | `array` | `[]` | Only include these properties (if set, overrides exclude) |
-| `immutable` | `bool` | `false` | Whether to treat the target class as immutable |
-| `builderMethod` | `string` | `'builder'` | Name of the static factory method |
-
-## CLI Commands
-
-### Generate Builders
-
-Generate builders for all classes with Builder attributes:
-
-```bash
-./vendor/bin/php-builder-generator
-```
-
-Generate builders with custom options:
-
-```bash
-./vendor/bin/php-builder-generator \
-    --src-dirs=src,app \
-    --output-dir=generated/builders
-```
-
-Generate builder for a specific class:
-
-```bash
-./vendor/bin/php-builder-generator "App\\Model\\User" \
-    --output-dir=generated/builders
-```
-
-### Clean Generated Files
-
-Remove all generated files:
-
-```bash
-./vendor/bin/php-builder-generator --clean
-```
-
-### CLI Options
-
-| Option | Description                                          |
-|--------|------------------------------------------------------|
-| `--src-dirs` | Comma-separated list of source directories           |
-| `--output-dir` | Directory for generated files                        |
-| `--namespace-suffix` | Namespace suffix to generate builders like `\\Builder` |
-| `--generator-config` | Generator configuration |
-| `--php-version` | PHP version to target (currently only 8.2 supported) |
-| `--clean` | Remove generated files before generating             |
-
-## Examples
-
-### Basic Class
-
-```php
-#[Builder]
-class Product
-{
-    public string $name;
-    public float $price;
-    public ?string $description = null;
-}
-```
-
-Generated builder usage:
-
-```php
-$product = ProductBuilder::builder()
-    ->setName('Laptop')
-    ->setPrice(999.99)
-    ->setDescription('High-performance laptop')
-    ->build();
-```
-
-### With Constructor
-
-```php
-#[Builder]
-class Order
-{
-    public function __construct(
-        public readonly string $id,
-        public string $customerEmail,
-        public array $items = [],
-        public float $total = 0.0
-    ) {}
-}
-```
-
-The builder will use constructor parameters:
-
-```php
-$order = OrderBuilder::builder()
-    ->setId('ORD-123')
-    ->setCustomerEmail('customer@example.com')
-    ->setItems([$product1, $product2])
-    ->setTotal(1999.98)
-    ->build();
-```
-
-### Custom Configuration
-
-```php
-#[Builder(
-    className: 'UserFactory',
-    namespace: 'App\\Factories',
-    exclude: ['password'],
-    fluent: true
-)]
-class User
-{
-    public string $username;
-    public string $email;
-    public string $password;
-    public array $roles = [];
-}
-```
-
-### Complex Types and References
-
-```php
-#[Builder]
-class BlogPost
-{
-    public function __construct(
-        public string $title,
-        public string $content,
-        public User $author,
-        public array $tags = [],
-        public ?\DateTimeImmutable $publishedAt = null
-    ) {}
-}
-```
-
-The builder handles complex types and automatically manages imports:
-
-```php
-use App\Model\Generated\BlogPostBuilder;
-
-$post = BlogPostBuilder::builder()
-    ->setTitle('My Blog Post')
-    ->setContent('This is the content...')
-    ->setAuthor($user)
-    ->setTags(['php', 'builders'])
-    ->setPublishedAt(new \DateTimeImmutable())
-    ->build();
-```
-
-### Disable Auto-generation
-
-To disable automatic generation during composer operations:
-
-```json
-{
-    "extra": {
-        "php-builder-generator": {
-            "auto-generate": false
-        }
-    }
-}
-```
-
-Then manually generate when needed:
-
-```bash
-./vendor/bin/php-builder-generator
-```
-
-## Generated Code Structure
-
-For a class `App\Model\User`, the generator creates:
-
-```
-vendor/generated/php-builder-generator/
-└── App/
-    └── Model/
-        └── Builder/            # With namespace suffix "\Builder"
-            └── UserBuilder.php
-```
-
-Without namespace suffix:
-
-```
-vendor/generated/php-builder-generator/
-└── App/
-    └── Model/
-        └── UserBuilder.php
-```
+- **[Installation & Setup](docs/getting-started/quick-start.md)** - Get started in 5 minutes
+- **[Configuration Guide](docs/features/configuration.md)** - All configuration options
+- **[Basic Examples](docs/examples/basic-examples.md)** - Common use cases
+- **[Contributing](docs/contributing/development.md)** - How to contribute
 
 ## Requirements
 
 - PHP 8.2 or higher
 - Composer 2.0 or higher
-
-## Roadmap
-
-- [ ] Support for PHP 8.3+ features
-- [ ] Custom setter method names
-- [ ] Custom constructor support
-- [ ] Additional template customization options
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
-### Development Setup
-
-1. Clone the repository
-2. Install dependencies: `composer install`
-3. Run tests: `composer test`
-
-### Contribution Guidelines
-
-- Add tests for new features
-- Update documentation for any new configuration options
-- Ensure backwards compatibility
 
 ## Show Your Support
 
@@ -370,7 +103,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Questions or Issues?** Please open an issue on [GitHub](https://github.com/maxbeckers/php-builder-generator).
+**Questions or Issues?** Please open an issue on [GitHub](https://github.com/maxbeckers/php-builder-generator/issues).
 
 ---
 
