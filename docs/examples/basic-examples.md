@@ -395,4 +395,4 @@ class User
 
 ---
 
-Ready for more complex scenarios? Check out [Advanced Examples](advanced-examples.md)!
+Ready for more advanced scenarios? Check out the [Configuration Guide](../features/configuration.md)!

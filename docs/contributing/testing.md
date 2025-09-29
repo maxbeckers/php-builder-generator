@@ -380,4 +380,4 @@ Fix any failing tests and ensure coverage remains high.
 
 ---
 
-Next: [Development Setup Guide](development.md)
+**Next**: [Development Setup Guide](development.md)

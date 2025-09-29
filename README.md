@@ -104,7 +104,8 @@ $user = UserBuilder::builder()
 
 ### Quick Links
 
-- **[Installation & Setup](docs/getting-started/quick-start.md)** - Get started in 5 minutes
+- **[Installation & Setup](docs/getting-started/installation.md)** - Detailed installation guide
+- **[Basic Usage](docs/getting-started/basic-usage.md)** - Learn the fundamentals
 - **[Configuration Guide](docs/features/configuration.md)** - All configuration options
 - **[Basic Examples](docs/examples/basic-examples.md)** - Common use cases
 - **[Contributing](docs/contributing/development.md)** - How to contribute
