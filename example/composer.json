@@ -12,7 +12,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Test\\": "src/"
+      "Test\\": ["src/", "vendor/generated/php-builder-generator/Test/"]
     }
   },
   "config": {

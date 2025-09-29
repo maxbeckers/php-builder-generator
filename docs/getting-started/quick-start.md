@@ -20,6 +20,26 @@ Get up and running with PHP Builder Generator in just a few minutes!
    }
    ```
 
+3. **Update Autoload for Generated Builders**  
+   Add the generated builder path to your `autoload.psr-4` section in `composer.json`. The path must include your namespace:
+
+   ```json
+   {
+     "autoload": {
+       "psr-4": {
+         "App\\": ["src/", "vendor/generated/php-builder-generator/App/"]
+       }
+     }
+   }
+   ```
+   
+   > **Important:** The path must be namespace-specific (e.g., `vendor/generated/php-builder-generator/App/`) and **not** just `vendor/generated/php-builder-generator/`.
+
+   After updating, run:
+   ```bash
+   composer dump-autoload
+   ```
+
 ## Your First Builder
 
 ### 1. Create a Class
