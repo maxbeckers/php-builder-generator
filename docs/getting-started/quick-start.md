@@ -105,8 +105,8 @@ You now have a fully functional builder for your `User` class with:
 ## Next Steps
 
 - [Learn about configuration options](../features/configuration.md)
-- [Explore advanced examples](../examples/advanced-examples.md)
-- [Understand all attribute options](../features/attributes.md)
+- [Explore basic examples](../examples/basic-examples.md)
+- [Read the complete documentation](../index.md)
 
 ## Common Patterns
 

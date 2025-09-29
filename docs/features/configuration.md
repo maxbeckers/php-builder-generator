@@ -303,4 +303,4 @@ The configuration is validated when the plugin runs. Invalid configurations will
 
 ---
 
-Next: [Learn about CLI Commands](cli-commands.md)
+**Next**: [Basic Examples](../examples/basic-examples.md)
