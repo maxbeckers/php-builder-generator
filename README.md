@@ -37,7 +37,28 @@ Add to your `composer.json`:
 }
 ```
 
-### 3. Add Builder Attribute
+### 3. Update Autoload for Generated Builders
+
+**Important:** Add the generated builder path to your `autoload.psr-4` section in `composer.json`. The path must include your namespace:
+
+```json
+{
+  "autoload": {
+    "psr-4": {
+      "App\\": ["src/", "vendor/generated/php-builder-generator/App/"]
+    }
+  }
+}
+```
+
+> **Note:** The path must be namespace-specific (e.g., `vendor/generated/php-builder-generator/App/`) and **not** just `vendor/generated/php-builder-generator/`.
+
+After updating, run:
+```bash
+composer dump-autoload
+```
+
+### 4. Add Builder Attribute
 
 ```php
 <?php
@@ -58,7 +79,7 @@ class User
 }
 ```
 
-### 4. Generate & Use
+### 5. Generate & Use
 
 Builders are automatically generated during `composer install/update`, or run:
 

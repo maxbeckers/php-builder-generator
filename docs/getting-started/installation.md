@@ -43,6 +43,51 @@ composer require maxbeckers/php-builder-generator --dev --with-dependencies
 composer config allow-plugins.maxbeckers/php-builder-generator true
 ```
 
+## Autoload Configuration for Generated Builders
+
+**Required:** You must add the generated builder path to your `autoload.psr-4` section in `composer.json`. The path must include your namespace.
+
+### Example Configuration
+
+If your classes are in the `App` namespace:
+
+```json
+{
+  "autoload": {
+    "psr-4": {
+      "App\\": ["src/", "vendor/generated/php-builder-generator/App/"]
+    }
+  }
+}
+```
+
+If you have multiple namespaces:
+
+```json
+{
+  "autoload": {
+    "psr-4": {
+      "App\\": ["src/", "vendor/generated/php-builder-generator/App/"],
+      "Domain\\": ["domain/", "vendor/generated/php-builder-generator/Domain/"]
+    }
+  }
+}
+```
+
+### Important Notes
+
+- The path **must** include the namespace (e.g., `vendor/generated/php-builder-generator/App/`)
+- **Do not** use just `vendor/generated/php-builder-generator/`
+- Each namespace requires its own entry in the autoload configuration
+
+### Apply Changes
+
+After updating your `composer.json`, regenerate the autoload files:
+
+```bash
+composer dump-autoload
+```
+
 ## Verification
 
 ### Verify Installation
@@ -171,9 +216,10 @@ composer config allow-plugins.maxbeckers/php-builder-generator true
 **Error**: `Class 'UserBuilder' not found`
 
 **Solutions**:
-1. Run `composer dump-autoload`
-2. Check autoload configuration includes generated directory
-3. Verify namespace configuration is correct
+1. Verify autoload configuration includes namespace-specific path
+2. Run `composer dump-autoload`
+3. Check that the generated builders exist in the correct namespace directory
+4. Ensure the path format is `vendor/generated/php-builder-generator/YourNamespace/`
 
 ### Getting Help
 
