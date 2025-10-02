@@ -4,12 +4,13 @@ Get up and running with PHP Builder Generator in just a few minutes!
 
 ## Installation
 
-1. **Install the package**:
+1. Install (Option 1 - recommended):
    ```bash
-   composer require maxbeckers/php-builder-generator --dev
+   composer require maxbeckers/php-builder-generator
    ```
+   > Alternative (Option 2): install with `--dev`, output to a custom directory like `generated/builders/`, commit generated code so production with `--no-dev` works. See full guide: [Installation Methods](installation.md#installation-methods)
 
-2. **Configure Composer** to allow the plugin in your `composer.json`:
+2. Configure Composer to allow the plugin:
    ```json
    {
      "config": {
@@ -20,9 +21,7 @@ Get up and running with PHP Builder Generator in just a few minutes!
    }
    ```
 
-3. **Update Autoload for Generated Builders**  
-   Add the generated builder path to your `autoload.psr-4` section in `composer.json`. The path must include your namespace:
-
+3. Add autoload path (Option 1 example):
    ```json
    {
      "autoload": {
@@ -32,10 +31,8 @@ Get up and running with PHP Builder Generator in just a few minutes!
      }
    }
    ```
-   
-   > **Important:** The path must be namespace-specific (e.g., `vendor/generated/php-builder-generator/App/`) and **not** just `vendor/generated/php-builder-generator/`.
+   > For Option 2 use: `"App\\": ["src/", "generated/builders/App/"]`
 
-   After updating, run:
    ```bash
    composer dump-autoload
    ```
