@@ -17,11 +17,20 @@ Generate builder patterns for PHP classes using attributes.
 
 ## Quick Start
 
-### 1. Install
+### 1. Install (Choose ONE Option)
 
+Option 1 (recommended, simplest – install as normal dependency):
 ```bash
-composer require maxbeckers/php-builder-generator --dev
+composer require maxbeckers/php-builder-generator
 ```
+
+Option 2 (keep as dev dependency, but commit generated builders so production with --no-dev still works):
+```bash
+composer require --dev maxbeckers/php-builder-generator
+```
+Then configure an output directory OUTSIDE vendor (e.g. generated/builders/) and commit the generated code (details in full installation docs).
+
+> Full details: see docs/getting-started/installation.md#installation-methods
 
 ### 2. Configure Composer
 
@@ -39,8 +48,7 @@ Add to your `composer.json`:
 
 ### 3. Update Autoload for Generated Builders
 
-**Important:** Add the generated builder path to your `autoload.psr-4` section in `composer.json`. The path must include your namespace:
-
+Option 1 (default output in vendor):
 ```json
 {
   "autoload": {
@@ -51,7 +59,18 @@ Add to your `composer.json`:
 }
 ```
 
-> **Note:** The path must be namespace-specific (e.g., `vendor/generated/php-builder-generator/App/`) and **not** just `vendor/generated/php-builder-generator/`.
+Option 2 (custom committed output directory):
+```json
+{
+  "autoload": {
+    "psr-4": {
+      "App\\": ["src/", "generated/builders/App/"]
+    }
+  }
+}
+```
+
+> Important: The path must include the namespace (e.g. .../App/), not just the base output directory.
 
 After updating, run:
 ```bash

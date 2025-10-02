@@ -9,11 +9,78 @@ This guide provides detailed installation instructions for PHP Builder Generator
 
 ## Installation Methods
 
-Install the package via Composer:
+Builders must be available in production. Choose ONE of these strategies:
+
+### Option 1: Standard Dependency (Recommended)
+
+Simplest path. Install normally so builders are generated during every `composer install` (including CI/prod).
 
 ```bash
-composer require maxbeckers/php-builder-generator --dev
+composer require maxbeckers/php-builder-generator
 ```
+
+### Option 2: Dev Dependency + Committed Generated Code
+
+Use when production runs `composer install --no-dev`. Generate builders locally into a non-vendor directory and commit them.
+
+Steps:
+
+1. Require as dev dependency:
+
+   ```bash
+   composer require --dev maxbeckers/php-builder-generator
+   ```
+
+2. Configure output outside vendor (sample composer.json fragment):
+
+   ```json
+   {
+     "extra": {
+       "php-builder-generator": {
+         "src-dirs": ["src"],
+         "output-dir": "generated/builders/",
+         "auto-generate": true
+       }
+     }
+   }
+   ```
+
+3. Add namespace-specific autoload path:
+
+   ```json
+   {
+     "autoload": {
+       "psr-4": {
+         "App\\": ["src/", "generated/builders/App/"]
+       }
+     }
+   }
+   ```
+
+4. Generate builders:
+
+   ```bash
+   composer install
+   # or
+   ./vendor/bin/php-builder-generator
+   composer dump-autoload
+   ```
+   Keep in mind that you have to update the generated code whenever your source classes change.
+
+5. Commit them:
+
+   ```bash
+   git add generated/builders
+   git commit -m "Add generated builders"
+   ```
+
+6. In CI / production:
+
+   ```bash
+   composer install --no-dev
+   ```
+
+   Builders are already present.
 
 ## Plugin Configuration
 
@@ -39,7 +106,11 @@ Composer 2.2+ requires explicit permission for plugins to run for security reaso
 Alternatively, you can allow the plugin during installation:
 
 ```bash
+# For Option 1:
+composer require maxbeckers/php-builder-generator --with-dependencies
+# For Option 2:
 composer require maxbeckers/php-builder-generator --dev --with-dependencies
+# Then allow:
 composer config allow-plugins.maxbeckers/php-builder-generator true
 ```
 
@@ -188,6 +259,7 @@ composer config allow-plugins.maxbeckers/php-builder-generator true
 **Error**: `./vendor/bin/php-builder-generator: No such file or directory`
 
 **Solutions**:
+
 1. Check installation: `composer show maxbeckers/php-builder-generator`
 2. Reinstall: `composer install --no-dev=false`
 3. Check permissions: `ls -la vendor/bin/php-builder-generator`
@@ -197,6 +269,7 @@ composer config allow-plugins.maxbeckers/php-builder-generator true
 **Symptoms**: Builders not generated during `composer install/update`
 
 **Solutions**:
+
 1. Verify plugin is allowed in `composer.json`
 2. Check `auto-generate` is `true` in configuration
 3. Verify classes have `#[Builder]` attribute
@@ -207,6 +280,7 @@ composer config allow-plugins.maxbeckers/php-builder-generator true
 **Error**: `Permission denied` when writing generated files
 
 **Solutions**:
+
 1. Check write permissions on output directory
 2. Create output directory: `mkdir -p vendor/generated/php-builder-generator`
 3. Fix permissions: `chmod 755 vendor/generated/php-builder-generator`
@@ -216,6 +290,7 @@ composer config allow-plugins.maxbeckers/php-builder-generator true
 **Error**: `Class 'UserBuilder' not found`
 
 **Solutions**:
+
 1. Verify autoload configuration includes namespace-specific path
 2. Run `composer dump-autoload`
 3. Check that the generated builders exist in the correct namespace directory
