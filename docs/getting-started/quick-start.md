@@ -20,7 +20,7 @@ Get up and running with PHP Builder Generator in just a few minutes!
    }
    ```
 
-3. Add autoload path (Option 1 example):
+3. Add autoload path:
    ```json
    {
      "autoload": {
@@ -29,11 +29,6 @@ Get up and running with PHP Builder Generator in just a few minutes!
        }
      }
    }
-   ```
-   > For Option 2 use: `"App\\": ["src/", "generated/builders/App/"]`
-
-   ```bash
-   composer dump-autoload
    ```
 
 ## Your First Builder
