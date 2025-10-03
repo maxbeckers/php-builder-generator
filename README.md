@@ -39,23 +39,11 @@ Add to your `composer.json`:
 
 ### 3. Update Autoload for Generated Builders
 
-Option 1 (default output in vendor):
 ```json
 {
   "autoload": {
     "psr-4": {
       "App\\": ["src/", "vendor/generated/php-builder-generator/App/"]
-    }
-  }
-}
-```
-
-Option 2 (custom committed output directory):
-```json
-{
-  "autoload": {
-    "psr-4": {
-      "App\\": ["src/", "generated/builders/App/"]
     }
   }
 }
