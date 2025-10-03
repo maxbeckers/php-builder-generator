@@ -17,20 +17,11 @@ Generate builder patterns for PHP classes using attributes.
 
 ## Quick Start
 
-### 1. Install (Choose ONE Option)
+### 1. Install 
 
-Option 1 (recommended, simplest – install as normal dependency):
 ```bash
 composer require maxbeckers/php-builder-generator
 ```
-
-Option 2 (keep as dev dependency, but commit generated builders so production with --no-dev still works):
-```bash
-composer require --dev maxbeckers/php-builder-generator
-```
-Then configure an output directory OUTSIDE vendor (e.g. generated/builders/) and commit the generated code (details in full installation docs).
-
-> Full details: see docs/getting-started/installation.md#installation-methods
 
 ### 2. Configure Composer
 

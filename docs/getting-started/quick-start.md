@@ -4,12 +4,11 @@ Get up and running with PHP Builder Generator in just a few minutes!
 
 ## Installation
 
-1. Install (Option 1 - recommended):
+1. Install 
    ```bash
    composer require maxbeckers/php-builder-generator
    ```
-   > Alternative (Option 2): install with `--dev`, output to a custom directory like `generated/builders/`, commit generated code so production with `--no-dev` works. See full guide: [Installation Methods](installation.md#installation-methods)
-
+  
 2. Configure Composer to allow the plugin:
    ```json
    {
