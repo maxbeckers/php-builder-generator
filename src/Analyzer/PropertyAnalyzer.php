@@ -7,6 +7,8 @@ namespace MaxBeckers\PhpBuilderGenerator\Analyzer;
 use MaxBeckers\PhpBuilderGenerator\Generator\Context\PropertyAccessStrategy;
 use MaxBeckers\PhpBuilderGenerator\Generator\Context\PropertyContext;
 use ReflectionClass;
+use ReflectionMethod;
+use ReflectionParameter;
 use ReflectionProperty;
 
 class PropertyAnalyzer
@@ -19,7 +21,7 @@ class PropertyAnalyzer
         $setterMethod = self::getSetterMethod($class, $propertyName);
         $strategy = self::determineAccessStrategy($property, $constructorParam, $setterMethod);
 
-        [$hasDefaultValue, $defaultValue] = self::getDefaultValue($property, $constructorParam);
+        [$hasDefaultValue, $defaultValue] = self::getDefaultValue($class, $property, $constructorParam);
 
         return new PropertyContext(
             name: $propertyName,
@@ -35,7 +37,7 @@ class PropertyAnalyzer
         );
     }
 
-    public static function getConstructorParameter(ReflectionClass $class, string $propertyName): ?\ReflectionParameter
+    private static function getConstructorParameter(ReflectionClass $class, string $propertyName): ?ReflectionParameter
     {
         $constructor = $class->getConstructor();
         if (!$constructor) {
@@ -51,7 +53,7 @@ class PropertyAnalyzer
         return null;
     }
 
-    private static function getDefaultValue(ReflectionProperty $property, ?\ReflectionParameter $constructorParam): array
+    private static function getDefaultValue(ReflectionClass $class, ReflectionProperty $property, ?ReflectionParameter $constructorParam): array
     {
         if ($constructorParam && $constructorParam->isDefaultValueAvailable()) {
             return [true, $constructorParam->getDefaultValue()];
@@ -61,10 +63,24 @@ class PropertyAnalyzer
             return [true, $property->getDefaultValue()];
         }
 
+        $parentClass = $class->getParentClass();
+        while ($parentClass) {
+            $parentConstructorParam = self::getConstructorParameter($parentClass, $property->getName());
+            if ($parentConstructorParam && $parentConstructorParam->isDefaultValueAvailable()) {
+                return [true, $parentConstructorParam->getDefaultValue()];
+            }
+            $parentProperty = $parentClass->hasProperty($property->getName()) ? $parentClass->getProperty($property->getName()) : null;
+            if ($parentProperty && $parentProperty->hasDefaultValue()) {
+                return [true, $parentProperty->getDefaultValue()];
+            }
+
+            $parentClass = $parentClass->getParentClass();
+        }
+
         return [false, null];
     }
 
-    private static function getSetterMethod(ReflectionClass $class, string $propertyName): ?\ReflectionMethod
+    private static function getSetterMethod(ReflectionClass $class, string $propertyName): ?ReflectionMethod
     {
         $setterNames = ['set' . ucfirst($propertyName), 'with' . ucfirst($propertyName)];
 
@@ -81,9 +97,9 @@ class PropertyAnalyzer
     }
 
     private static function determineAccessStrategy(
-        ReflectionProperty    $property,
-        ?\ReflectionParameter $constructorParam,
-        ?\ReflectionMethod    $setterMethod
+        ReflectionProperty   $property,
+        ?ReflectionParameter $constructorParam,
+        ?ReflectionMethod    $setterMethod
     ): PropertyAccessStrategy
     {
         if ($property->isReadOnly() && $constructorParam) {

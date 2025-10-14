@@ -12,6 +12,7 @@ readonly class ClassContext
     public function __construct(
         public ReflectionClass $reflection,
         public ?Builder $builderAttribute = null,
+        /** @var PropertyContext[] */
         public array $properties = []
     ) {
     }
@@ -41,6 +42,9 @@ readonly class ClassContext
         return $this->reflection->getNamespaceName();
     }
 
+    /**
+     * @return PropertyContext[]
+     */
     public function getBuilderProperties(): array
     {
         if (!$this->builderAttribute) {
