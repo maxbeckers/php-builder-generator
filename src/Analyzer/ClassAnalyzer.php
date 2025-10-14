@@ -7,7 +7,6 @@ namespace MaxBeckers\PhpBuilderGenerator\Analyzer;
 use MaxBeckers\PhpBuilderGenerator\Attribute\Builder;
 use MaxBeckers\PhpBuilderGenerator\Generator\Context\ClassContext;
 use ReflectionClass;
-use ReflectionProperty;
 
 class ClassAnalyzer
 {

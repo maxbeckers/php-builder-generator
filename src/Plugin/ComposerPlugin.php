@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MaxBeckers\PhpBuilderGenerator\Plugin;
 
 use Composer\Composer;
+use Composer\EventDispatcher\Event;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
@@ -37,7 +38,7 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         ];
     }
 
-    public function generateBuilders(): void
+    public function generateBuilders(Event $event): void
     {
         $extra = $this->composer->getPackage()->getExtra();
         $config = $extra['php-builder-generator'] ?? [];
@@ -46,6 +47,8 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
             $this->io->write('<info>PHP Builder Generator: Auto-generation disabled</info>');
             return;
         }
+
+        $this->forceAutoloading();
         $this->io->write('<info>Generating PHP builders...</info>');
 
         $extra = $this->composer->getPackage()->getExtra();
@@ -55,5 +58,38 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         $generated = $service->generateBuilders($config);
 
         $this->io->write("<info>Generated {$generated} builder classes</info>");
+
+        if ($generated > 0) {
+            $this->io->write('<info>Regenerating autoloader...</info>');
+            $this->regenerateAutoloader($event);
+            $this->io->write('<info>Autoloader regenerated.</info>');
+        }
+    }
+
+    private function regenerateAutoloader(Event $event): void
+    {
+        $config = $this->composer->getConfig();
+        $generator = $this->composer->getAutoloadGenerator();
+        $installationManager = $this->composer->getInstallationManager();
+        $localRepo = $this->composer->getRepositoryManager()->getLocalRepository();
+        $package = $this->composer->getPackage();
+        $optimize = $event->getFlags()['optimize'] ?? false;
+
+        $generator->setRunScripts(false);
+
+        $generator->dump(
+            $config,
+            $localRepo,
+            $package,
+            $installationManager,
+            'composer',
+            $optimize
+        );
+    }
+
+    public function forceAutoloading(): void
+    {
+        $vendorDir = $this->composer->getConfig()->get('vendor-dir');
+        require_once $vendorDir . '/autoload.php';
     }
 }
