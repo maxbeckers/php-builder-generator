@@ -25,7 +25,7 @@ Get up and running with PHP Builder Generator in just a few minutes!
    {
      "autoload": {
        "psr-4": {
-         "App\\": ["src/", "vendor/generated/php-builder-generator/App/"]
+         "App\\": ["src/", "generated/php-builder-generator/App/"]
        }
      }
    }

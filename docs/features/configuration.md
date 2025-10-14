@@ -11,7 +11,7 @@ Add configuration to your `composer.json` under the `extra` section:
     "extra": {
         "php-builder-generator": {
             "src-dirs": ["src", "app"],
-            "output-dir": "vendor/generated/php-builder-generator/",
+            "output-dir": "generated/php-builder-generator/",
             "namespace-suffix": "\\Builder",
             "php-version": "8.2",
             "auto-generate": true,
@@ -28,7 +28,7 @@ Add configuration to your `composer.json` under the `extra` section:
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `src-dirs` | `array` | `["src"]` | Directories to scan for classes with Builder attributes |
-| `output-dir` | `string` | `"vendor/generated/php-builder-generator/"` | Directory where generated builders will be saved |
+| `output-dir` | `string` | `"generated/php-builder-generator/"` | Directory where generated builders will be saved |
 | `namespace-suffix` | `string` | `""` | Suffix to append to the original namespace for generated classes |
 | `php-version` | `string` | `"8.2"` | PHP version to target (currently only 8.2 supported) |
 | `auto-generate` | `bool` | `true` | Whether to automatically generate during composer install/update |
@@ -56,13 +56,13 @@ Control where generated files are placed:
 {
     "extra": {
         "php-builder-generator": {
-            "output-dir": "generated/builders/"
+            "output-dir": "build/builders/"
         }
     }
 }
 ```
 
-**Note**: The output directory should typically be in `vendor/` or added to your `.gitignore` since these are generated files.
+**Note**: The output directory should typically be in `generated/`. You can either add it to `.gitignore` and always generate the builders or add them to git.
 
 ### Namespace Configuration
 
@@ -242,7 +242,7 @@ project/
 ├── src/
 │   └── Model/
 │       └── User.php                    # Original class
-└── vendor/generated/php-builder-generator/
+└── generated/php-builder-generator/
     └── App/
         └── Model/
             └── Builder/                # Namespace suffix
@@ -256,7 +256,7 @@ project/
 ├── src/
 │   └── Model/
 │       └── User.php                    # Original class
-└── vendor/generated/php-builder-generator/
+└── generated/php-builder-generator/
     └── App/
         └── Model/
             └── UserBuilder.php         # Generated builder

@@ -16,11 +16,11 @@ echo "Generated: {$generated} files\n\n";
 
 echo "2. Checking generated files...\n";
 $builderFiles = [
-    'vendor/generated/php-builder-generator/Test/CompanyBuilder.php',
-    'vendor/generated/php-builder-generator/Test/TestUserPublicAttributesBuilder.php',
-    'vendor/generated/php-builder-generator/Test/TestUserWithConstructorAndSetterBuilder.php',
-    'vendor/generated/php-builder-generator/Test/TestUserWithConstructorBuilder.php',
-    'vendor/generated/php-builder-generator/Test/UserWithReferenceBuilder.php',
+    'generated/php-builder-generator/Test/CompanyBuilder.php',
+    'generated/php-builder-generator/Test/TestUserPublicAttributesBuilder.php',
+    'generated/php-builder-generator/Test/TestUserWithConstructorAndSetterBuilder.php',
+    'generated/php-builder-generator/Test/TestUserWithConstructorBuilder.php',
+    'generated/php-builder-generator/Test/UserWithReferenceBuilder.php',
 ];
 foreach ($builderFiles as $builderFile) {
     if (file_exists($builderFile)) {

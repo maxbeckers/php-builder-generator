@@ -43,7 +43,7 @@ Add to your `composer.json`:
 {
   "autoload": {
     "psr-4": {
-      "App\\": ["src/", "vendor/generated/php-builder-generator/App/"]
+      "App\\": ["src/", "generated/php-builder-generator/App/"]
     }
   }
 }

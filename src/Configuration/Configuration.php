@@ -20,7 +20,7 @@ readonly class Configuration
     {
         return new self(
             srcDirs: $config['src-dirs'] ?? ['src'],
-            outputDir: $config['output-dir'] ?? 'vendor/generated/php-builder-generator/',
+            outputDir: $config['output-dir'] ?? 'generated/php-builder-generator/',
             namespaceSuffix: $config['namespace-suffix'] ?? '',
             generatorConfig: $config['generator-config'] ?? [],
             phpVersion: $config['php-version'] ?? '8.2',
