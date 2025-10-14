@@ -53,7 +53,7 @@ If your classes are in the `App` namespace:
 {
   "autoload": {
     "psr-4": {
-      "App\\": ["src/", "vendor/generated/php-builder-generator/App/"]
+      "App\\": ["src/", "generated/php-builder-generator/App/"]
     }
   }
 }
@@ -65,8 +65,8 @@ If you have multiple namespaces:
 {
   "autoload": {
     "psr-4": {
-      "App\\": ["src/", "vendor/generated/php-builder-generator/App/"],
-      "Domain\\": ["domain/", "vendor/generated/php-builder-generator/Domain/"]
+      "App\\": ["src/", "generated/php-builder-generator/App/"],
+      "Domain\\": ["domain/", "generated/php-builder-generator/Domain/"]
     }
   }
 }
@@ -74,8 +74,8 @@ If you have multiple namespaces:
 
 ### Important Notes
 
-- The path **must** include the namespace (e.g., `vendor/generated/php-builder-generator/App/`)
-- **Do not** use just `vendor/generated/php-builder-generator/`
+- The path **must** include the namespace (e.g., `generated/php-builder-generator/App/`)
+- **Do not** use just `generated/php-builder-generator/`
 - Each namespace requires its own entry in the autoload configuration
 
 ### Apply Changes
@@ -137,7 +137,7 @@ Add basic configuration to your `composer.json`:
     "extra": {
         "php-builder-generator": {
             "src-dirs": ["src"],
-            "output-dir": "vendor/generated/php-builder-generator/",
+            "output-dir": "generated/php-builder-generator/",
             "auto-generate": true
         }
     }
@@ -209,8 +209,8 @@ composer config allow-plugins.maxbeckers/php-builder-generator true
 **Solutions**:
 
 1. Check write permissions on output directory
-2. Create output directory: `mkdir -p vendor/generated/php-builder-generator`
-3. Fix permissions: `chmod 755 vendor/generated/php-builder-generator`
+2. Create output directory: `mkdir -p generated/php-builder-generator`
+3. Fix permissions: `chmod 755 generated/php-builder-generator`
 
 #### Namespace Issues
 
@@ -221,7 +221,7 @@ composer config allow-plugins.maxbeckers/php-builder-generator true
 1. Verify autoload configuration includes namespace-specific path
 2. Run `composer dump-autoload`
 3. Check that the generated builders exist in the correct namespace directory
-4. Ensure the path format is `vendor/generated/php-builder-generator/YourNamespace/`
+4. Ensure the path format is `generated/php-builder-generator/YourNamespace/`
 
 ### Getting Help
 

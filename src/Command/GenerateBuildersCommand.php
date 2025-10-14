@@ -19,7 +19,7 @@ class GenerateBuildersCommand extends Command
             ->setDescription('Generate builder classes')
             ->addArgument('class', InputArgument::OPTIONAL, 'Specific class to generate builder for')
             ->addOption('src-dirs', 's', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Source directories', ['src'])
-            ->addOption('output-dir', 'o', InputOption::VALUE_OPTIONAL, 'Output directory', 'vendor/generated/php-builder-generator')
+            ->addOption('output-dir', 'o', InputOption::VALUE_OPTIONAL, 'Output directory', 'generated/php-builder-generator')
             ->addOption('namespace-suffix', 'ns', InputOption::VALUE_OPTIONAL, 'Namespace Suffix', '')
             ->addOption('generator-config', 'gc', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Generator config', [])
             ->addOption('php-version', 'php', InputOption::VALUE_OPTIONAL, 'PHP version', '8.2')

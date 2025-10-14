@@ -292,7 +292,7 @@ Generated builders provide full IDE support:
 
 By default, builders are generated in:
 ```
-vendor/generated/php-builder-generator/YourNamespace/YourClass/YourClassBuilder.php
+generated/php-builder-generator/YourNamespace/YourClassBuilder.php
 ```
 
 ### Autoloading
@@ -303,7 +303,7 @@ Add the generated directory to your `composer.json`:
 {
     "autoload-dev": {
         "psr-4": {
-            "App\\": "vendor/generated/php-builder-generator/"
+            "App\\": "generated/php-builder-generator/"
         }
     }
 }

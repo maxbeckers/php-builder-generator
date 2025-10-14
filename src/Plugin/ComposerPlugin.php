@@ -54,6 +54,6 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
         $service = new BuilderService();
         $generated = $service->generateBuilders($config);
 
-        $this->io->write("<info>Generated {$generated} builder classes in vendor directory</info>");
+        $this->io->write("<info>Generated {$generated} builder classes</info>");
     }
 }
