@@ -64,8 +64,8 @@ class PropertyAnalyzerTest extends TestCase
         $this->assertFalse($context->isNullable);
         $this->assertFalse($context->isReadonly);
         $this->assertTrue($context->isPublic);
-        $this->assertNull($context->constructorParam);
-        $this->assertEquals(PropertyAccessStrategy::PROPERTY, $context->accessStrategy);
+        $this->assertEquals('active', $context->constructorParam->getDefaultValue());
+        $this->assertEquals(PropertyAccessStrategy::CONSTRUCTOR, $context->accessStrategy);
     }
 
     public function testAnalyzeReadonlyProperty(): void

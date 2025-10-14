@@ -35,20 +35,7 @@ class PropertyAnalyzer
         );
     }
 
-    private static function getDefaultValue(ReflectionProperty $property, ?\ReflectionParameter $constructorParam): array
-    {
-        if ($constructorParam && $constructorParam->isDefaultValueAvailable()) {
-            return [true, $constructorParam->getDefaultValue()];
-        }
-
-        if ($property->hasDefaultValue()) {
-            return [true, $property->getDefaultValue()];
-        }
-
-        return [false, null];
-    }
-
-    private static function getConstructorParameter(ReflectionClass $class, string $propertyName): ?\ReflectionParameter
+    public static function getConstructorParameter(ReflectionClass $class, string $propertyName): ?\ReflectionParameter
     {
         $constructor = $class->getConstructor();
         if (!$constructor) {
@@ -62,6 +49,19 @@ class PropertyAnalyzer
         }
 
         return null;
+    }
+
+    private static function getDefaultValue(ReflectionProperty $property, ?\ReflectionParameter $constructorParam): array
+    {
+        if ($constructorParam && $constructorParam->isDefaultValueAvailable()) {
+            return [true, $constructorParam->getDefaultValue()];
+        }
+
+        if ($property->hasDefaultValue()) {
+            return [true, $property->getDefaultValue()];
+        }
+
+        return [false, null];
     }
 
     private static function getSetterMethod(ReflectionClass $class, string $propertyName): ?\ReflectionMethod
