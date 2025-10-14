@@ -25,7 +25,7 @@ class ClassAnalyzerTest extends TestCase
         $this->assertNotNull($context);
         $this->assertTrue($context->hasBuilderAttribute());
         $this->assertEquals('SimpleUser', $context->getShortName());
-        $this->assertCount(5, $context->getBuilderProperties());
+        $this->assertCount(6, $context->getBuilderProperties());
     }
 
     public function testAnalyzeClassWithoutBuilderAttribute(): void
