@@ -12,7 +12,8 @@ class AbstractUser
     public function __construct(
         private string $type,
         public string $name,
-        public string $email
+        public string $email,
+        public string $version = '1.0'
     ) {
     }
 }
