@@ -22,7 +22,6 @@ readonly class PropertyContext
 
     public function needsTracking(): bool
     {
-        return $this->accessStrategy !== PropertyAccessStrategy::CONSTRUCTOR
-            && $this->hasDefaultValue;
+        return $this->accessStrategy !== PropertyAccessStrategy::CONSTRUCTOR;
     }
 }

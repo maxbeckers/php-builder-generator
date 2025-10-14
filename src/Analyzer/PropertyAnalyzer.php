@@ -37,7 +37,7 @@ class PropertyAnalyzer
         );
     }
 
-    public static function getConstructorParameter(ReflectionClass $class, string $propertyName): ?ReflectionParameter
+    private static function getConstructorParameter(ReflectionClass $class, string $propertyName): ?ReflectionParameter
     {
         $constructor = $class->getConstructor();
         if (!$constructor) {

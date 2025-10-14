@@ -39,7 +39,7 @@ class ClassAnalyzer
         $properties = [];
 
         foreach ($class->getProperties() as $property) {
-            if ($property->isStatic() || $this->isHardcodedInParentConstructor($class, $property)) {
+            if ($property->isStatic()) {
                 continue;
             }
 
@@ -47,36 +47,5 @@ class ClassAnalyzer
         }
 
         return $properties;
-    }
-
-    /**
-     * Try to find properties that are set in a parent constructor to identify calls like parent::__construct(self::TYPE).
-     * If the property is set in a parent constructor and not available as a constructor parameter, we assume it's hardcoded.
-     * This means the property should not be set via the builder.
-     * In future there might be more checks needed to improve this detection.
-     */
-    private function isHardcodedInParentConstructor(ReflectionClass $class, ReflectionProperty $property): bool
-    {
-        if ($property->getDeclaringClass()->getName() === $class->getName()) {
-            return false;
-        }
-        $propertyName = $property->getName();
-
-        if (PropertyAnalyzer::getConstructorParameter($class, $propertyName) !== null) {
-            return false;
-        }
-
-        $parentClass = $class->getParentClass();
-        while ($parentClass !== false) {
-            $parentParam = PropertyAnalyzer::getConstructorParameter($parentClass, $propertyName);
-
-            if ($parentParam !== null && !$parentParam->isDefaultValueAvailable()) {
-                return true;
-            }
-
-            $parentClass = $parentClass->getParentClass();
-        }
-
-        return false;
     }
 }
