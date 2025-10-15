@@ -62,7 +62,6 @@ class BuilderGenerator implements GeneratorInterface
 
         $results = [];
 
-        // Generate main builder
         $builderCode = $this->templateEngine->render('builder.php.twig', $templateContext);
         $results[] = [
             'type' => 'builder',
@@ -70,20 +69,6 @@ class BuilderGenerator implements GeneratorInterface
             'content' => $builderCode,
             'path' => $this->getOutputPath($context, $builderClassName, $builderNamespace)
         ];
-
-        // Generate factory if requested
-        if ($builderAttribute->generateFactory) {
-            $factoryClassName = $builderClassName . 'Factory';
-            $templateContext['factory_class_name'] = $factoryClassName;
-
-            $factoryCode = $this->templateEngine->render('factory.php.twig', $templateContext);
-            $results[] = [
-                'type' => 'factory',
-                'class_name' => $factoryClassName,
-                'content' => $factoryCode,
-                'path' => $this->getOutputPath($context, $factoryClassName, $builderNamespace)
-            ];
-        }
 
         return $results;
     }

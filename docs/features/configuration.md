@@ -105,10 +105,8 @@ The `#[Builder]` attribute provides fine-grained control over individual builder
     className: 'CustomUserBuilder',
     namespace: 'App\\Builders',
     fluent: true,
-    generateFactory: false,
     exclude: ['password'],
     include: ['name', 'email'],
-    immutable: false,
     builderMethod: 'create'
 )]
 class User { ... }
@@ -121,10 +119,8 @@ class User { ... }
 | `className` | `?string` | `null` | Custom name for the generated builder class |
 | `namespace` | `?string` | `null` | Custom namespace for the generated builder |
 | `fluent` | `bool` | `true` | Whether setter methods should return `self` for chaining |
-| `generateFactory` | `bool` | `false` | Generate an additional factory class |
 | `exclude` | `array` | `[]` | Property names to exclude from the builder |
 | `include` | `array` | `[]` | Only include these properties (if set, overrides exclude) |
-| `immutable` | `bool` | `false` | Whether to treat the target class as immutable |
 | `builderMethod` | `string` | `'builder'` | Name of the static factory method |
 
 ## Advanced Configuration Examples
@@ -201,19 +197,6 @@ class User
 $user = UserBuilder::create()  // Instead of ::builder()
     ->name('John')
     ->build();
-```
-
-### Immutable Objects
-
-```php
-#[Builder(immutable: true)]
-class Money
-{
-    public function __construct(
-        public readonly int $amount,
-        public readonly string $currency
-    ) {}
-}
 ```
 
 ## Generator-Specific Configuration
