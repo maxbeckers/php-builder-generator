@@ -126,16 +126,4 @@ class Email
 }
 ```
 
-### Immutable Object
-```php
-#[Builder(immutable: true)]
-class Money
-{
-    public function __construct(
-        public readonly int $amount,
-        public readonly string $currency
-    ) {}
-}
-```
-
 Ready to dive deeper? Check out our [configuration guide](../features/configuration.md)!
