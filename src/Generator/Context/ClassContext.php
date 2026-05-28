@@ -4,27 +4,17 @@ declare(strict_types=1);
 
 namespace MaxBeckers\PhpBuilderGenerator\Generator\Context;
 
-use MaxBeckers\PhpBuilderGenerator\Attribute\Builder;
+use MaxBeckers\PhpBuilderGenerator\Config\BuilderConfig;
 use ReflectionClass;
 
 readonly class ClassContext
 {
     public function __construct(
         public ReflectionClass $reflection,
-        public ?Builder $builderAttribute = null,
+        public BuilderConfig $builderConfig,
         /** @var PropertyContext[] */
         public array $properties = []
     ) {
-    }
-
-    public function hasBuilderAttribute(): bool
-    {
-        return $this->builderAttribute !== null;
-    }
-
-    public function getBuilderAttribute(): Builder
-    {
-        return $this->builderAttribute ?? throw new \RuntimeException('No builder attribute found');
     }
 
     public function getName(): string
@@ -47,18 +37,14 @@ readonly class ClassContext
      */
     public function getBuilderProperties(): array
     {
-        if (!$this->builderAttribute) {
-            return [];
-        }
-
         $properties = [];
         foreach ($this->properties as $property) {
-            if (!empty($this->builderAttribute->include) &&
-                !in_array($property->name, $this->builderAttribute->include)) {
+            if (!empty($this->builderConfig->include) &&
+                !in_array($property->name, $this->builderConfig->include)) {
                 continue;
             }
 
-            if (in_array($property->name, $this->builderAttribute->exclude)) {
+            if (in_array($property->name, $this->builderConfig->exclude)) {
                 continue;
             }
 

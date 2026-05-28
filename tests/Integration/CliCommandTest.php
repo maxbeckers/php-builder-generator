@@ -14,11 +14,13 @@ class CliCommandTest extends TestCase
 {
     private string $outputDir;
     private Filesystem $filesystem;
+    private string $testConfigFile;
 
     protected function setUp(): void
     {
         $this->outputDir = __DIR__ . '/../output';
         $this->filesystem = new Filesystem();
+        $this->testConfigFile = __DIR__ . '/../php-builder-generator.php';
 
         if ($this->filesystem->exists($this->outputDir)) {
             $this->filesystem->remove($this->outputDir);
@@ -41,8 +43,7 @@ class CliCommandTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $commandTester->execute([
-            '--src-dirs' => [__DIR__ . '/../Fixtures'],
-            '--output-dir' => $this->outputDir,
+            '--config' => $this->testConfigFile,
         ]);
 
         $this->assertEquals(0, $commandTester->getStatusCode());
@@ -50,26 +51,6 @@ class CliCommandTest extends TestCase
         $output = $commandTester->getDisplay();
         $this->assertStringContainsString('Generated', $output);
         $this->assertStringContainsString('builder classes', $output);
-    }
-
-    public function testGenerateSpecificClass(): void
-    {
-        $application = new Application();
-        $application->add(new GenerateBuildersCommand());
-
-        $command = $application->find('generate');
-        $commandTester = new CommandTester($command);
-
-        $commandTester->execute([
-            'class' => 'MaxBeckers\\PhpBuilderGenerator\\Tests\\Fixtures\\SimpleUser',
-            '--src-dirs' => [__DIR__ . '/../Fixtures'],
-            '--output-dir' => $this->outputDir,
-        ]);
-
-        $this->assertEquals(0, $commandTester->getStatusCode());
-
-        $output = $commandTester->getDisplay();
-        $this->assertStringContainsString('Generated', $output);
     }
 
     public function testCleanCommand(): void
@@ -81,13 +62,11 @@ class CliCommandTest extends TestCase
         $commandTester = new CommandTester($command);
 
         $commandTester->execute([
-            '--src-dirs' => [__DIR__ . '/../Fixtures'],
-            '--output-dir' => $this->outputDir,
+            '--config' => $this->testConfigFile,
         ]);
 
         $commandTester->execute([
-            '--src-dirs' => [__DIR__ . '/../Fixtures'],
-            '--output-dir' => $this->outputDir,
+            '--config' => $this->testConfigFile,
             '--clean' => true,
         ]);
 

@@ -1,19 +1,26 @@
 # Basic Examples
 
-This page demonstrates common use cases and patterns for PHP Builder Generator.
+Common use cases for PHP Builder Generator. In all examples, the source classes have **no imports** from this library — only the `php-builder-generator.php` config file references it.
+
+## Setup
+
+```php
+// php-builder-generator.php
+use MaxBeckers\PhpBuilderGenerator\Config\BuilderConfig;
+use MaxBeckers\PhpBuilderGenerator\Config\PhpBuilderGeneratorConfig;
+
+return PhpBuilderGeneratorConfig::configure()
+    ->scanDirectory('src/Model')
+    ->scanDirectory('src/DTO')
+    ->outputDir('generated/php-builder-generator/');
+```
 
 ## Simple Data Classes
 
-### Basic Product Class
+### Product with Public Properties
 
 ```php
-<?php
-
-namespace App\Model;
-
-use MaxBeckers\PhpBuilderGenerator\Attributes\Builder;
-
-#[Builder]
+// src/Model/Product.php
 class Product
 {
     public string $name;
@@ -23,8 +30,6 @@ class Product
     public array $categories = [];
 }
 ```
-
-**Usage:**
 
 ```php
 $product = ProductBuilder::builder()
@@ -36,10 +41,10 @@ $product = ProductBuilder::builder()
     ->build();
 ```
 
-### User Profile with Constructor
+### User with Constructor
 
 ```php
-#[Builder]
+// src/Model/User.php
 class User
 {
     public function __construct(
@@ -49,7 +54,7 @@ class User
         public array $roles = ['user'],
         public bool $active = true
     ) {}
-    
+
     public function isAdmin(): bool
     {
         return in_array('admin', $this->roles);
@@ -57,15 +62,11 @@ class User
 }
 ```
 
-**Usage:**
-
 ```php
 $admin = UserBuilder::builder()
     ->name('Jane Smith')
     ->email('jane@company.com')
-    ->age(28)
     ->roles(['admin', 'user'])
-    ->active(true)
     ->build();
 
 echo $admin->isAdmin(); // true
@@ -73,10 +74,10 @@ echo $admin->isAdmin(); // true
 
 ## Working with Types
 
-### DateTime and Complex Types
+### DateTime and Object References
 
 ```php
-#[Builder]
+// src/Model/Event.php
 class Event
 {
     public function __construct(
@@ -89,21 +90,20 @@ class Event
 }
 ```
 
-**Usage:**
-
 ```php
 $event = EventBuilder::builder()
     ->title('PHP Conference')
     ->startDate(new \DateTimeImmutable('2024-03-15'))
     ->endDate(new \DateTimeImmutable('2024-03-17'))
     ->organizer($organizer)
-    ->attendees([$user1, $user2, $user3])
+    ->attendees([$user1, $user2])
     ->build();
 ```
 
 ### Enums (PHP 8.1+)
 
 ```php
+// src/Model/BlogPost.php
 enum Status: string
 {
     case DRAFT = 'draft';
@@ -111,7 +111,6 @@ enum Status: string
     case ARCHIVED = 'archived';
 }
 
-#[Builder]
 class BlogPost
 {
     public function __construct(
@@ -123,8 +122,6 @@ class BlogPost
     ) {}
 }
 ```
-
-**Usage:**
 
 ```php
 $post = BlogPostBuilder::builder()
@@ -138,10 +135,10 @@ $post = BlogPostBuilder::builder()
 
 ## Value Objects
 
-### Money Value Object
+### Money
 
 ```php
-#[Builder]
+// src/Model/Money.php
 class Money
 {
     public function __construct(
@@ -149,14 +146,10 @@ class Money
         public readonly string $currency
     ) {
         if ($amount < 0) {
-            throw new InvalidArgumentException('Amount cannot be negative');
-        }
-        
-        if (strlen($currency) !== 3) {
-            throw new InvalidArgumentException('Currency must be 3 characters');
+            throw new \InvalidArgumentException('Amount cannot be negative');
         }
     }
-    
+
     public function formatted(): string
     {
         return number_format($this->amount / 100, 2) . ' ' . $this->currency;
@@ -164,76 +157,21 @@ class Money
 }
 ```
 
-**Usage:**
-
 ```php
 $price = MoneyBuilder::builder()
-    ->amount(199900) // $1999.00
+    ->amount(199900)
     ->currency('USD')
     ->build();
 
 echo $price->formatted(); // "1999.00 USD"
 ```
 
-### Email Address
-
-```php
-#[Builder]
-class EmailAddress
-{
-    public function __construct(public readonly string $address)
-    {
-        if (!filter_var($address, FILTER_VALIDATE_EMAIL)) {
-            throw new InvalidArgumentException('Invalid email address');
-        }
-    }
-    
-    public function domain(): string
-    {
-        return substr($this->address, strpos($this->address, '@') + 1);
-    }
-}
-```
-
-**Usage:**
-
-```php
-$email = EmailAddressBuilder::builder()
-    ->address('user@example.com')
-    ->build();
-
-echo $email->domain(); // "example.com"
-```
-
-## Collections and Aggregates
+## Collections / Aggregates
 
 ### Shopping Cart
 
 ```php
-#[Builder]
-class ShoppingCart
-{
-    public function __construct(
-        public readonly string $id,
-        public User $customer,
-        public array $items = [],
-        public ?\DateTimeImmutable $createdAt = null
-    ) {
-        $this->createdAt ??= new \DateTimeImmutable();
-    }
-    
-    public function total(): Money
-    {
-        $total = 0;
-        foreach ($this->items as $item) {
-            $total += $item->price->amount * $item->quantity;
-        }
-        
-        return new Money($total, 'USD');
-    }
-}
-
-#[Builder]
+// src/Model/CartItem.php
 class CartItem
 {
     public function __construct(
@@ -242,105 +180,139 @@ class CartItem
         public Money $price
     ) {}
 }
+
+// src/Model/ShoppingCart.php
+class ShoppingCart
+{
+    public function __construct(
+        public readonly string $id,
+        public User $customer,
+        public array $items = [],
+        public ?\DateTimeImmutable $createdAt = null
+    ) {}
+}
 ```
 
-**Usage:**
-
 ```php
-$item1 = CartItemBuilder::builder()
+$item = CartItemBuilder::builder()
     ->product($laptop)
     ->quantity(1)
     ->price(MoneyBuilder::builder()->amount(249999)->currency('USD')->build())
     ->build();
 
-$item2 = CartItemBuilder::builder()
-    ->product($mouse)
-    ->quantity(2)
-    ->price(MoneyBuilder::builder()->amount(2999)->currency('USD')->build())
-    ->build();
-
 $cart = ShoppingCartBuilder::builder()
     ->id('cart-123')
     ->customer($customer)
-    ->items([$item1, $item2])
+    ->items([$item])
     ->build();
-
-echo $cart->total()->formatted(); // Total cart value
 ```
 
-## Configuration Examples
+## Per-Class Config Examples
 
-### Excluding Sensitive Data
+### Excluding Sensitive Properties
 
 ```php
-#[Builder(exclude: ['password', 'apiKey'])]
+// php-builder-generator.php
+->class(App\Model\User::class, new BuilderConfig(
+    exclude: ['password', 'apiKey']
+))
+```
+
+```php
+// src/Model/User.php
 class User
 {
     public string $name;
     public string $email;
-    public string $password;       // No setter generated
-    public ?string $apiKey = null; // No setter generated
+    public string $password;    // no setter generated
+    public ?string $apiKey = null; // no setter generated
 }
 ```
 
 ### Custom Builder Name
 
 ```php
-#[Builder(className: 'UserFactory')]
-class User
-{
-    public string $name;
-    public string $email;
-}
+->class(App\Model\User::class, new BuilderConfig(
+    className: 'UserFactory',
+    namespace: 'App\\Factories'
+))
 
-// Usage with custom name:
-$user = UserFactory::builder()
-    ->name('John')
-    ->email('john@example.com')
-    ->build();
-```
-
-### Custom Namespace
-
-```php
-#[Builder(
-    className: 'UserBuilder',
-    namespace: 'App\\Builders'
-)]
-class User
-{
-    public string $name;
-}
-
-// Generated class: App\Builders\UserBuilder
-$user = \App\Builders\UserBuilder::builder()
-    ->name('John')
-    ->build();
+// Usage:
+$user = \App\Factories\UserFactory::builder()->name('John')->build();
 ```
 
 ### Non-Fluent Interface
 
 ```php
-#[Builder(fluent: false)]
-class Config
-{
-    public string $host;
-    public int $port;
-}
+->class(App\Model\Config::class, new BuilderConfig(fluent: false))
 
-// Methods don't return $this:
+// Generated methods return void:
 $builder = ConfigBuilder::builder();
-$builder->host('localhost');  // void
-$builder->port(3306);         // void
+$builder->host('localhost');
+$builder->port(3306);
 $config = $builder->build();
 ```
 
-## Integration Patterns
+## Testing Patterns
 
-### With Validation
+### Builder in Unit Tests
 
 ```php
-#[Builder]
+public function testUserIsAdmin(): void
+{
+    $user = UserBuilder::builder()
+        ->name('Jane')
+        ->email('jane@example.com')
+        ->roles(['admin', 'user'])
+        ->build();
+
+    $this->assertTrue($user->isAdmin());
+}
+```
+
+### Test Object Factories
+
+```php
+class UserTestFactory
+{
+    public static function default(): UserBuilder
+    {
+        return UserBuilder::builder()
+            ->name('Test User')
+            ->email('test@example.com')
+            ->active(true);
+    }
+
+    public static function admin(): UserBuilder
+    {
+        return self::default()->roles(['admin', 'user']);
+    }
+}
+
+// Usage:
+$regularUser = UserTestFactory::default()->build();
+$adminUser   = UserTestFactory::admin()->name('Admin Jane')->build();
+```
+
+### Conditional Building
+
+```php
+$builder = UserBuilder::builder()
+    ->name($name)
+    ->email($email);
+
+if ($request->has('age')) {
+    $builder->age($request->age);
+}
+
+$user = $builder->build();
+```
+
+## Integration with Validation
+
+Validation in constructors works naturally — the builder assembles the arguments and passes them through:
+
+```php
 class RegisterUserCommand
 {
     public function __construct(
@@ -348,51 +320,19 @@ class RegisterUserCommand
         public string $email,
         public string $password
     ) {
-        $this->validate();
-    }
-    
-    private function validate(): void
-    {
-        if (strlen($this->name) < 2) {
-            throw new InvalidArgumentException('Name too short');
+        if (strlen($name) < 2) {
+            throw new \InvalidArgumentException('Name too short');
         }
-        
-        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
-            throw new InvalidArgumentException('Invalid email');
-        }
-        
-        if (strlen($this->password) < 8) {
-            throw new InvalidArgumentException('Password too short');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \InvalidArgumentException('Invalid email');
         }
     }
 }
+
+// This will throw if validation fails, just like constructing directly:
+$command = RegisterUserCommandBuilder::builder()
+    ->name('Jo')
+    ->email('not-an-email')
+    ->password('secret')
+    ->build();
 ```
-
-### With Factories
-
-```php
-#[Builder]
-class User
-{
-    public function __construct(
-        public readonly string $id,
-        public string $name,
-        public string $email,
-        public \DateTimeImmutable $createdAt
-    ) {}
-    
-    public static function create(string $name, string $email): self
-    {
-        return UserBuilder::builder()
-            ->id(Uuid::uuid4()->toString())
-            ->name($name)
-            ->email($email)
-            ->createdAt(new \DateTimeImmutable())
-            ->build();
-    }
-}
-```
-
----
-
-Ready for more advanced scenarios? Check out the [Configuration Guide](../features/configuration.md)!

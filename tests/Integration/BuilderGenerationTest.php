@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace MaxBeckers\PhpBuilderGenerator\Tests\Integration;
 
+use MaxBeckers\PhpBuilderGenerator\Config\BuilderConfig;
+use MaxBeckers\PhpBuilderGenerator\Config\PhpBuilderGeneratorConfig;
 use MaxBeckers\PhpBuilderGenerator\Service\BuilderService;
+use MaxBeckers\PhpBuilderGenerator\Tests\Fixtures\CustomBuilderConfig;
 use MaxBeckers\PhpBuilderGenerator\Tests\Fixtures\SimpleUser;
 use MaxBeckers\PhpBuilderGenerator\Tests\Fixtures\UserWithConstructor;
-use MaxBeckers\PhpBuilderGenerator\Tests\Fixtures\CustomBuilderConfig;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -37,11 +39,10 @@ class BuilderGenerationTest extends TestCase
 
     public function testGenerateSimpleBuilder(): void
     {
-        $config = [
-            'src-dirs' => [__DIR__ . '/../Fixtures'],
-            'output-dir' => $this->outputDir,
-            'namespace-suffix' => '\\Generated'
-        ];
+        $config = PhpBuilderGeneratorConfig::configure()
+            ->scanDirectory(__DIR__ . '/../Fixtures')
+            ->outputDir($this->outputDir)
+            ->namespaceSuffix('\\Generated');
 
         $generated = $this->service->generateBuilders($config);
 
@@ -76,12 +77,14 @@ class BuilderGenerationTest extends TestCase
 
     public function testGenerateBuilderWithConstructor(): void
     {
-        $config = [
-            'src-dirs' => [__DIR__ . '/../Fixtures'],
-            'output-dir' => $this->outputDir,
-        ];
+        $config = PhpBuilderGeneratorConfig::configure()
+            ->outputDir($this->outputDir);
 
-        $generated = $this->service->generateForClass(UserWithConstructor::class, $config);
+        $generated = $this->service->generateForClass(
+            UserWithConstructor::class,
+            new BuilderConfig(),
+            $config
+        );
 
         $this->assertEquals(1, $generated);
 
@@ -94,12 +97,17 @@ class BuilderGenerationTest extends TestCase
 
     public function testGenerateBuilderWithCustomConfig(): void
     {
-        $config = [
-            'src-dirs' => [__DIR__ . '/../Fixtures'],
-            'output-dir' => $this->outputDir,
-        ];
+        $builderConfig = new BuilderConfig(
+            className: 'MyCustomBuilder',
+            namespace: 'Custom\\Namespace',
+            exclude: ['password'],
+            fluent: false
+        );
 
-        $generated = $this->service->generateForClass(CustomBuilderConfig::class, $config);
+        $config = PhpBuilderGeneratorConfig::configure()
+            ->outputDir($this->outputDir);
+
+        $generated = $this->service->generateForClass(CustomBuilderConfig::class, $builderConfig, $config);
 
         $this->assertEquals(1, $generated);
 
@@ -116,10 +124,9 @@ class BuilderGenerationTest extends TestCase
 
     public function testCleanGeneratedFiles(): void
     {
-        $config = [
-            'src-dirs' => [__DIR__ . '/../Fixtures'],
-            'output-dir' => $this->outputDir,
-        ];
+        $config = PhpBuilderGeneratorConfig::configure()
+            ->scanDirectory(__DIR__ . '/../Fixtures')
+            ->outputDir($this->outputDir);
 
         $this->service->generateBuilders($config);
         $this->assertDirectoryExists($this->outputDir);
@@ -128,3 +135,4 @@ class BuilderGenerationTest extends TestCase
         $this->assertGreaterThan(0, $deleted);
     }
 }
+

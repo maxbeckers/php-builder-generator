@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Test;
 
-use MaxBeckers\PhpBuilderGenerator\Attribute\Builder;
-
-#[Builder]
 class TestUserPublicAttributes
 {
     public string $name;

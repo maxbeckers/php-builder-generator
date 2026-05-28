@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace MaxBeckers\PhpBuilderGenerator\Tests\Fixtures;
 
-use MaxBeckers\PhpBuilderGenerator\Attribute\Builder;
-
-#[Builder]
 class SimpleUser extends AbstractUser
 {
     const TYPE_SIMPLE = 'simple';

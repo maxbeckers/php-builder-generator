@@ -10,6 +10,7 @@ use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\ScriptEvents;
+use MaxBeckers\PhpBuilderGenerator\Config\ConfigFileLoader;
 use MaxBeckers\PhpBuilderGenerator\Service\BuilderService;
 
 class ComposerPlugin implements PluginInterface, EventSubscriberInterface
@@ -40,19 +41,31 @@ class ComposerPlugin implements PluginInterface, EventSubscriberInterface
 
     public function generateBuilders(Event $event): void
     {
+        $projectDir = dirname($this->composer->getConfig()->get('vendor-dir'));
         $extra = $this->composer->getPackage()->getExtra();
-        $config = $extra['php-builder-generator'] ?? [];
+        $pluginExtra = $extra['php-builder-generator'] ?? [];
 
-        if (isset($config['auto-generate']) && $config['auto-generate'] === false) {
+        $loader = new ConfigFileLoader();
+        $configFile = isset($pluginExtra['config-file'])
+            ? $pluginExtra['config-file']
+            : $loader->findConfigFile($projectDir);
+
+        if ($configFile === null) {
+            $this->io->write('<info>PHP Builder Generator: No config file found, skipping generation</info>');
+
+            return;
+        }
+
+        $config = $loader->load($configFile);
+
+        if (!$config->isAutoGenerate()) {
             $this->io->write('<info>PHP Builder Generator: Auto-generation disabled</info>');
+
             return;
         }
 
         $this->forceAutoloading();
         $this->io->write('<info>Generating PHP builders...</info>');
-
-        $extra = $this->composer->getPackage()->getExtra();
-        $config = $extra['php-builder-generator'] ?? [];
 
         $service = new BuilderService();
         $generated = $service->generateBuilders($config);

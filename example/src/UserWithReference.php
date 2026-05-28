@@ -2,10 +2,8 @@
 
 namespace Test;
 
-use MaxBeckers\PhpBuilderGenerator\Attribute\Builder;
 use Test\ReferencedObject\Email;
 
-#[Builder]
 class UserWithReference
 {
     public function __construct(

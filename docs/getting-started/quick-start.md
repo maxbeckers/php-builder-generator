@@ -4,12 +4,12 @@ Get up and running with PHP Builder Generator in just a few minutes!
 
 ## Installation
 
-1. Install 
+1. Install as a dev dependency:
    ```bash
-   composer require maxbeckers/php-builder-generator
+   composer require --dev maxbeckers/php-builder-generator
    ```
-  
-2. Configure Composer to allow the plugin:
+
+2. Allow the Composer plugin:
    ```json
    {
      "config": {
@@ -20,7 +20,7 @@ Get up and running with PHP Builder Generator in just a few minutes!
    }
    ```
 
-3. Add autoload path:
+3. Add the generated builders to your autoload:
    ```json
    {
      "autoload": {
@@ -33,7 +33,24 @@ Get up and running with PHP Builder Generator in just a few minutes!
 
 ## Your First Builder
 
-### 1. Create a Class
+### 1. Create the Config File
+
+Create `php-builder-generator.php` in your project root:
+
+```php
+<?php
+// php-builder-generator.php
+
+use MaxBeckers\PhpBuilderGenerator\Config\PhpBuilderGeneratorConfig;
+
+return PhpBuilderGeneratorConfig::configure()
+    ->scanDirectory('src/Model')
+    ->outputDir('generated/php-builder-generator/');
+```
+
+### 2. Create a Class
+
+No imports from this library needed — your class is completely clean:
 
 ```php
 <?php
@@ -41,9 +58,6 @@ Get up and running with PHP Builder Generator in just a few minutes!
 
 namespace App\Model;
 
-use MaxBeckers\PhpBuilderGenerator\Attributes\Builder;
-
-#[Builder]
 class User
 {
     public function __construct(
@@ -56,22 +70,19 @@ class User
 }
 ```
 
-### 2. Generate the Builder
+### 3. Generate the Builder
 
-Run the generation command:
+Builders are automatically generated during `composer install/update`, or run manually:
 
 ```bash
 ./vendor/bin/php-builder-generator
 ```
 
-Or builders are automatically generated during `composer install/update`!
-
-### 3. Use Your Builder
+### 4. Use Your Builder
 
 ```php
 <?php
 
-use App\Model\User;
 use App\Model\UserBuilder; // Auto-generated!
 
 $user = UserBuilder::builder()
@@ -92,29 +103,33 @@ You now have a fully functional builder for your `User` class with:
 - ✅ Full type safety
 - ✅ IDE autocomplete support
 - ✅ No runtime overhead
-
-## Next Steps
-
-- [Learn about configuration options](../features/configuration.md)
-- [Explore basic examples](../examples/basic-examples.md)
-- [Read the complete documentation](../index.md)
+- ✅ Library is a dev-only dependency
 
 ## Common Patterns
 
-### Simple Data Class
+### Explicit class list
+
 ```php
-#[Builder]
-class Product
-{
-    public string $name;
-    public float $price;
-    public ?string $description = null;
-}
+use MaxBeckers\PhpBuilderGenerator\Config\BuilderConfig;
+use MaxBeckers\PhpBuilderGenerator\Config\PhpBuilderGeneratorConfig;
+
+return PhpBuilderGeneratorConfig::configure()
+    ->class(App\Model\User::class)
+    ->class(App\Model\Company::class, new BuilderConfig(fluent: false));
+```
+
+### Directory scan with defaults
+
+```php
+return PhpBuilderGeneratorConfig::configure()
+    ->scanDirectory('src/DTO', new BuilderConfig(fluent: true))
+    ->scanDirectory('src/Model');
 ```
 
 ### With Validation
+
 ```php
-#[Builder]
+// src/Model/Email.php — no imports from this library
 class Email
 {
     public function __construct(public string $address)
@@ -126,4 +141,9 @@ class Email
 }
 ```
 
-Ready to dive deeper? Check out our [configuration guide](../features/configuration.md)!
+## Next Steps
+
+- [Learn about all configuration options](../features/configuration.md)
+- [Explore basic examples](../examples/basic-examples.md)
+- [Read the complete documentation](../index.md)
+

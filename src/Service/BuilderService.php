@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace MaxBeckers\PhpBuilderGenerator\Service;
 
 use MaxBeckers\PhpBuilderGenerator\Analyzer\ClassAnalyzer;
-use MaxBeckers\PhpBuilderGenerator\Configuration\Configuration;
+use MaxBeckers\PhpBuilderGenerator\Config\BuilderConfig;
+use MaxBeckers\PhpBuilderGenerator\Config\PhpBuilderGeneratorConfig;
 use MaxBeckers\PhpBuilderGenerator\Generator\BuilderGenerator;
 use MaxBeckers\PhpBuilderGenerator\Generator\Context\GenerationContext;
 use MaxBeckers\PhpBuilderGenerator\Generator\TemplateEngine;
@@ -24,32 +25,26 @@ class BuilderService
         $this->generator = new BuilderGenerator($this->templateEngine);
     }
 
-    public function generateBuilders(array $config): int
+    public function generateBuilders(PhpBuilderGeneratorConfig $config): int
     {
-        $configuration = Configuration::fromArray($config);
-
-        if (!is_dir($configuration->outputDir)) {
-            mkdir($configuration->outputDir, 0755, true);
+        if (!is_dir($config->getOutputDir())) {
+            mkdir($config->getOutputDir(), 0755, true);
         }
 
-        $classes = $this->discoverClasses($configuration);
+        $classes = $this->resolveClasses($config);
         $generated = 0;
 
-        foreach ($classes as $className) {
-            $classContext = $this->analyzer->analyze($className);
+        foreach ($classes as $className => $builderConfig) {
+            $classContext = $this->analyzer->analyze($className, $builderConfig);
 
-            if ($classContext === null || !$classContext->hasBuilderAttribute()) {
+            if ($classContext === null) {
                 continue;
             }
 
             $generationContext = new GenerationContext(
-                configuration: $configuration,
+                config: $config,
                 classContext: $classContext
             );
-
-            if (!$this->generator->canGenerate($generationContext)) {
-                continue;
-            }
 
             $results = $this->generator->generate($generationContext);
 
@@ -62,22 +57,84 @@ class BuilderService
         return $generated;
     }
 
-    private function discoverClasses(Configuration $configuration): array
+    public function generateForClass(string $className, BuilderConfig $builderConfig, PhpBuilderGeneratorConfig $config): int
     {
+        $classContext = $this->analyzer->analyze($className, $builderConfig);
+
+        if ($classContext === null) {
+            return 0;
+        }
+
+        $generationContext = new GenerationContext(
+            config: $config,
+            classContext: $classContext
+        );
+
+        $results = $this->generator->generate($generationContext);
+
+        foreach ($results as $result) {
+            $this->writeGeneratedFile($result['path'], $result['content']);
+        }
+
+        return count($results);
+    }
+
+    public function clean(PhpBuilderGeneratorConfig $config): int
+    {
+        if (!is_dir($config->getOutputDir())) {
+            return 0;
+        }
+
+        $finder = new Finder();
+        $finder->files()->in($config->getOutputDir())->name('*.php');
+
+        $deleted = 0;
+        foreach ($finder as $file) {
+            unlink($file->getRealPath());
+            $deleted++;
+        }
+
+        $this->removeEmptyDirectories($config->getOutputDir());
+
+        return $deleted;
+    }
+
+    /**
+     * @return array<class-string, BuilderConfig>
+     */
+    private function resolveClasses(PhpBuilderGeneratorConfig $config): array
+    {
+        $classes = $config->getClassConfigs();
+
+        foreach ($config->getScanDirectories() as $scan) {
+            $discovered = $this->discoverClassesInDirectory($scan['dir']);
+            foreach ($discovered as $className) {
+                if (!isset($classes[$className])) {
+                    $classes[$className] = $scan['config'];
+                }
+            }
+        }
+
+        return $classes;
+    }
+
+    /**
+     * @return class-string[]
+     */
+    private function discoverClassesInDirectory(string $srcDir): array
+    {
+        if (!is_dir($srcDir)) {
+            return [];
+        }
+
         $classes = [];
 
-        foreach ($configuration->srcDirs as $srcDir) {
-            if (!is_dir($srcDir)) {
-                continue;
-            }
+        $finder = new Finder();
+        $finder->files()->in($srcDir)->name('*.php');
 
-            $finder = new Finder();
-            $finder->files()->in($srcDir)->name('*.php');
-
-            foreach ($finder as $file) {
-                $fileClasses = $this->extractClassNamesFromFile($file->getContents(), $file->getPathname());
-                $classes = array_merge($classes, $fileClasses);
-            }
+        foreach ($finder as $file) {
+            $fileClasses = $this->extractClassNamesFromFile($file->getContents(), $file->getPathname());
+            $classes = array_merge($classes, $fileClasses);
         }
 
         return array_unique($classes);
@@ -87,20 +144,17 @@ class BuilderService
     {
         $classes = [];
 
-        // Extract namespace
         if (preg_match('/namespace\s+([^;]+);/', $content, $namespaceMatches)) {
             $namespace = trim($namespaceMatches[1]);
         } else {
             $namespace = '';
         }
 
-        // Extract class names (class, abstract class, final class)
         preg_match_all('/(?:(?:abstract|final)\s+)?class\s+(\w+)/', $content, $classMatches);
 
         foreach ($classMatches[1] as $className) {
             $fullClassName = $namespace ? $namespace . '\\' . $className : $className;
 
-            // Only include classes that are actually loadable
             if ($this->isClassLoadable($fullClassName, $filename)) {
                 $classes[] = $fullClassName;
             }
@@ -131,63 +185,6 @@ class BuilderService
         }
 
         file_put_contents($path, $content);
-    }
-
-    /**
-     * Generate builders for a specific class (used by console command)
-     */
-    public function generateForClass(string $className, array $config = []): int
-    {
-        $configuration = Configuration::fromArray($config);
-
-        $classContext = $this->analyzer->analyze($className);
-
-        if ($classContext === null || !$classContext->hasBuilderAttribute()) {
-            return 0;
-        }
-
-        $generationContext = new GenerationContext(
-            configuration: $configuration,
-            classContext: $classContext
-        );
-
-        if (!$this->generator->canGenerate($generationContext)) {
-            return 0;
-        }
-
-        $results = $this->generator->generate($generationContext);
-
-        foreach ($results as $result) {
-            $this->writeGeneratedFile($result['path'], $result['content']);
-        }
-
-        return count($results);
-    }
-
-    /**
-     * Clean generated files
-     */
-    public function clean(array $config = []): int
-    {
-        $configuration = Configuration::fromArray($config);
-
-        if (!is_dir($configuration->outputDir)) {
-            return 0;
-        }
-
-        $finder = new Finder();
-        $finder->files()->in($configuration->outputDir)->name('*.php');
-
-        $deleted = 0;
-        foreach ($finder as $file) {
-            unlink($file->getRealPath());
-            $deleted++;
-        }
-
-        // Remove empty directories
-        $this->removeEmptyDirectories($configuration->outputDir);
-
-        return $deleted;
     }
 
     private function removeEmptyDirectories(string $dir): void

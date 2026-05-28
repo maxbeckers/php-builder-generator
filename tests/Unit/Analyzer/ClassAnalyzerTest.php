@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MaxBeckers\PhpBuilderGenerator\Tests\Unit\Analyzer;
 
 use MaxBeckers\PhpBuilderGenerator\Analyzer\ClassAnalyzer;
+use MaxBeckers\PhpBuilderGenerator\Config\BuilderConfig;
 use MaxBeckers\PhpBuilderGenerator\Tests\Fixtures\SimpleUser;
 use MaxBeckers\PhpBuilderGenerator\Tests\Fixtures\UserWithConstructor;
 use PHPUnit\Framework\TestCase;
@@ -18,34 +19,31 @@ class ClassAnalyzerTest extends TestCase
         $this->analyzer = new ClassAnalyzer();
     }
 
-    public function testAnalyzeClassWithBuilderAttribute(): void
+    public function testAnalyzeClass(): void
     {
-        $context = $this->analyzer->analyze(SimpleUser::class);
+        $context = $this->analyzer->analyze(SimpleUser::class, new BuilderConfig());
 
         $this->assertNotNull($context);
-        $this->assertTrue($context->hasBuilderAttribute());
         $this->assertEquals('SimpleUser', $context->getShortName());
         $this->assertCount(6, $context->getBuilderProperties());
     }
 
-    public function testAnalyzeClassWithoutBuilderAttribute(): void
+    public function testAnalyzeNonExistentClass(): void
     {
-        $context = $this->analyzer->analyze(\stdClass::class);
+        $context = $this->analyzer->analyze('NonExistentClass', new BuilderConfig());
 
         $this->assertNull($context);
     }
 
     public function testAnalyzeClassWithConstructor(): void
     {
-        $context = $this->analyzer->analyze(UserWithConstructor::class);
+        $context = $this->analyzer->analyze(UserWithConstructor::class, new BuilderConfig());
 
         $this->assertNotNull($context);
-        $this->assertTrue($context->hasBuilderAttribute());
 
         $properties = $context->getBuilderProperties();
         $this->assertCount(5, $properties);
 
-        // Check specific properties using array_filter
         $nameProperty = $this->findPropertyByName($properties, 'name');
         $this->assertNotNull($nameProperty);
         $this->assertEquals('string', $nameProperty->type);
@@ -58,16 +56,18 @@ class ClassAnalyzerTest extends TestCase
         $this->assertNull($ageProperty->defaultValue);
     }
 
-    public function testAnalyzeNonExistentClass(): void
+    public function testExcludePropertiesViaBuilderConfig(): void
     {
-        $context = $this->analyzer->analyze('NonExistentClass');
+        $builderConfig = new BuilderConfig(exclude: ['email']);
+        $context = $this->analyzer->analyze(SimpleUser::class, $builderConfig);
 
-        $this->assertNull($context);
+        $this->assertNotNull($context);
+
+        $properties = $context->getBuilderProperties();
+        $names = array_map(fn($p) => $p->name, $properties);
+        $this->assertNotContains('email', $names);
     }
 
-    /**
-     * Helper method to find a property by name
-     */
     private function findPropertyByName(array $properties, string $name): ?object
     {
         foreach ($properties as $property) {
@@ -75,6 +75,7 @@ class ClassAnalyzerTest extends TestCase
                 return $property;
             }
         }
+
         return null;
     }
 }

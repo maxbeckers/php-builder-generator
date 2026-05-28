@@ -2,9 +2,6 @@
 
 namespace Test;
 
-use MaxBeckers\PhpBuilderGenerator\Attribute\Builder;
-
-#[Builder]
 readonly class Company
 {
     public function __construct(
