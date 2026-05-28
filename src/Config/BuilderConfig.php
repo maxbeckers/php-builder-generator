@@ -2,12 +2,9 @@
 
 declare(strict_types=1);
 
-namespace MaxBeckers\PhpBuilderGenerator\Attribute;
+namespace MaxBeckers\PhpBuilderGenerator\Config;
 
-use Attribute;
-
-#[Attribute(Attribute::TARGET_CLASS)]
-readonly class Builder
+readonly class BuilderConfig
 {
     public function __construct(
         public ?string $className = null,

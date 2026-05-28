@@ -2,9 +2,6 @@
 
 namespace Test;
 
-use MaxBeckers\PhpBuilderGenerator\Attribute\Builder;
-
-#[Builder]
 class TestUserWithConstructorAndSetter
 {
     private string $email;

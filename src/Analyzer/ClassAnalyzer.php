@@ -4,31 +4,24 @@ declare(strict_types=1);
 
 namespace MaxBeckers\PhpBuilderGenerator\Analyzer;
 
-use MaxBeckers\PhpBuilderGenerator\Attribute\Builder;
+use MaxBeckers\PhpBuilderGenerator\Config\BuilderConfig;
 use MaxBeckers\PhpBuilderGenerator\Generator\Context\ClassContext;
 use ReflectionClass;
 
 class ClassAnalyzer
 {
-    public function analyze(string $className): ?ClassContext
+    public function analyze(string $className, BuilderConfig $builderConfig): ?ClassContext
     {
         if (!class_exists($className)) {
             return null;
         }
 
         $reflection = new ReflectionClass($className);
-        $builderAttributes = $reflection->getAttributes(Builder::class);
-
-        if (empty($builderAttributes)) {
-            return null;
-        }
-
-        $builderAttribute = $builderAttributes[0]->newInstance();
         $properties = $this->analyzeProperties($reflection);
 
         return new ClassContext(
             reflection: $reflection,
-            builderAttribute: $builderAttribute,
+            builderConfig: $builderConfig,
             properties: $properties
         );
     }

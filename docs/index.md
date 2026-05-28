@@ -1,23 +1,32 @@
 # PHP Builder Generator Documentation
 
-Welcome to the PHP Builder Generator documentation! This library helps you automatically generate builder patterns for your PHP classes using simple attributes.
+Welcome to the PHP Builder Generator documentation! This library automatically generates builder patterns for your PHP classes — as a **dev-only dependency**.
 
 ## What is PHP Builder Generator?
 
-PHP Builder Generator is a Composer plugin that automatically creates builder classes for your PHP objects. Instead of manually writing repetitive builder code, you simply add a `#[Builder]` attribute to your class and the generator does the rest.
+PHP Builder Generator is a Composer plugin that creates builder classes for your PHP objects at build time. Configuration lives in a single `php-builder-generator.php` file in your project root — your production classes stay completely clean, with no dependency on this library.
 
 ## Key Benefits
 
-- 🚀 **Zero Runtime Overhead**: Builders are generated at build time, not runtime
+- 🚀 **Dev-only dependency**: Production code has zero dependency on this library
+- 🏃 **Zero Runtime Overhead**: Builders are generated at build time, not runtime
 - 📝 **IDE Friendly**: Full autocomplete and type checking support
-- 🔧 **Highly Configurable**: Customize every aspect of generation
+- 🔧 **Highly Configurable**: Single `php-builder-generator.php` config file
 - 🎯 **Type Safe**: Preserves all type information from original classes
 - 🏗️ **Smart**: Automatically handles constructors, imports, and namespaces
 
 ## Quick Example
 
 ```php
-#[Builder]
+// php-builder-generator.php
+use MaxBeckers\PhpBuilderGenerator\Config\PhpBuilderGeneratorConfig;
+
+return PhpBuilderGeneratorConfig::configure()
+    ->scanDirectory('src/Model');
+```
+
+```php
+// src/Model/User.php — no imports from this library!
 class User
 {
     public function __construct(
@@ -26,7 +35,9 @@ class User
         public ?int $age = null
     ) {}
 }
+```
 
+```php
 // Generated builder usage:
 $user = UserBuilder::builder()
     ->name('John Doe')
@@ -43,10 +54,10 @@ $user = UserBuilder::builder()
 - [Basic Usage](getting-started/basic-usage.md) - Your first builder
 
 ### Features & Configuration
-- [Configuration Options](features/configuration.md) - Complete configuration reference
+- [Configuration Options](features/configuration.md) - Complete `php-builder-generator.php` reference
 
 ### Examples
-- [Basic Examples](examples/basic-examples.md) - Simple use cases
+- [Basic Examples](examples/basic-examples.md) - Common use cases
 
 ### Contributing
 - [Development Setup](contributing/development.md) - How to contribute

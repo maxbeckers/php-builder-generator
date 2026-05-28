@@ -1,6 +1,6 @@
 # PHP Builder Generator
 
-Generate builder patterns for PHP classes using attributes.
+Generate builder patterns for PHP classes — a dev-only dependency.
 
 [![PHP Version](https://img.shields.io/badge/php-%5E8.2-blue)](https://php.net)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -8,22 +8,22 @@ Generate builder patterns for PHP classes using attributes.
 
 ## Features
 
-- 🚀 **Attribute-based**: Use PHP attributes to mark classes for builder generation
+- 🚀 **Dev-only**: No production dependency — the library is never needed at runtime
 - 🏃 **Zero Runtime Overhead**: Builders generated at build time, not runtime
 - 📝 **IDE Friendly**: Full autocomplete and type checking support
-- 🔧 **Highly Configurable**: Customize every aspect of generation
+- 🔧 **Highly Configurable**: Customize every aspect of generation via a single config file
 - 🎯 **Type Safe**: Preserves all type information from original classes
 - 🏗️ **Constructor Aware**: Intelligently handles constructor parameters
 
 ## Quick Start
 
-### 1. Install 
+### 1. Install as dev dependency
 
 ```bash
-composer require maxbeckers/php-builder-generator
+composer require --dev maxbeckers/php-builder-generator
 ```
 
-### 2. Configure Composer
+### 2. Allow the Composer plugin
 
 Add to your `composer.json`:
 
@@ -49,23 +49,46 @@ Add to your `composer.json`:
 }
 ```
 
-> Important: The path must include the namespace (e.g. .../App/), not just the base output directory.
+> Important: The path must include the namespace (e.g. `.../App/`), not just the base output directory.
 
 After updating, run:
 ```bash
 composer dump-autoload
 ```
 
-### 4. Add Builder Attribute
+### 4. Create `php-builder-generator.php`
+
+Add a config file to your project root:
 
 ```php
 <?php
+// php-builder-generator.php
+
+use MaxBeckers\PhpBuilderGenerator\Config\BuilderConfig;
+use MaxBeckers\PhpBuilderGenerator\Config\PhpBuilderGeneratorConfig;
+
+return PhpBuilderGeneratorConfig::configure()
+    // Option A: explicit per-class config
+    ->class(App\Model\User::class)
+    ->class(App\Model\Company::class, new BuilderConfig(fluent: false, exclude: ['internalId']))
+
+    // Option B: scan a whole directory (generates a builder for every class found)
+    ->scanDirectory('src/DTO')
+    ->scanDirectory('src/Model', new BuilderConfig(fluent: true))
+
+    // Output settings
+    ->outputDir('generated/php-builder-generator/')
+    ->phpVersion('8.2');
+```
+
+Your production classes need **no imports** from this library — they stay completely clean:
+
+```php
+<?php
+// src/Model/User.php
 
 namespace App\Model;
 
-use MaxBeckers\PhpBuilderGenerator\Attributes\Builder;
-
-#[Builder]
 class User
 {
     public function __construct(

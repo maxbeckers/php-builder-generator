@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MaxBeckers\PhpBuilderGenerator\Generator;
 
+use MaxBeckers\PhpBuilderGenerator\Generator\Context\ClassContext;
 use MaxBeckers\PhpBuilderGenerator\Generator\Context\GenerationContext;
 
 class BuilderGenerator implements GeneratorInterface
@@ -15,16 +16,16 @@ class BuilderGenerator implements GeneratorInterface
 
     public function canGenerate(GenerationContext $context): bool
     {
-        return $context->classContext->hasBuilderAttribute();
+        return true;
     }
 
     public function generate(GenerationContext $context): array
     {
         $classContext = $context->classContext;
-        $builderAttribute = $classContext->getBuilderAttribute();
+        $builderConfig = $classContext->builderConfig;
 
-        $builderClassName = $builderAttribute->className ?? $classContext->getShortName() . 'Builder';
-        $builderNamespace = $this->getBuilderNamespace($classContext, $builderAttribute, $context);
+        $builderClassName = $builderConfig->className ?? $classContext->getShortName() . 'Builder';
+        $builderNamespace = $this->getBuilderNamespace($classContext, $context);
         $properties = $classContext->getBuilderProperties();
 
         $importManager = new ImportManager($builderNamespace);
@@ -49,7 +50,7 @@ class BuilderGenerator implements GeneratorInterface
 
         $templateContext = [
             'class' => $classContext,
-            'builder_attribute' => $builderAttribute,
+            'builder_config' => $builderConfig,
             'properties' => $processedProperties,
             'builder_class_name' => $builderClassName,
             'builder_namespace' => $builderNamespace,
@@ -75,7 +76,7 @@ class BuilderGenerator implements GeneratorInterface
 
     public function getOutputPath(GenerationContext $context, string $className, string $namespace = null): string
     {
-        $baseDir = $context->configuration->outputDir;
+        $baseDir = $context->config->getOutputDir();
 
         if ($namespace) {
             $namespacePath = str_replace('\\', '/', trim($namespace, '\\'));
@@ -96,19 +97,18 @@ class BuilderGenerator implements GeneratorInterface
         return false;
     }
 
-    private function getBuilderNamespace(
-        object $classContext,
-        object $builderAttribute,
-        GenerationContext $context
-    ): string {
-        if ($builderAttribute->namespace) {
-            return $builderAttribute->namespace;
+    private function getBuilderNamespace(ClassContext $classContext, GenerationContext $context): string
+    {
+        $builderConfig = $classContext->builderConfig;
+
+        if ($builderConfig->namespace) {
+            return $builderConfig->namespace;
         }
 
-        if (empty($context->configuration->namespaceSuffix)) {
+        if (empty($context->config->getNamespaceSuffix())) {
             return $classContext->getNamespace();
         }
 
-        return $classContext->getNamespace() . $context->configuration->namespaceSuffix;
+        return $classContext->getNamespace() . $context->config->getNamespaceSuffix();
     }
 }
