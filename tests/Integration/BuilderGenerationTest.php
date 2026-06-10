@@ -134,5 +134,82 @@ class BuilderGenerationTest extends TestCase
         $deleted = $this->service->clean($config);
         $this->assertGreaterThan(0, $deleted);
     }
-}
 
+    public function testNoBuilderBuilderGeneratedWhenOutputDirIsAlsoScanned(): void
+    {
+        $config = PhpBuilderGeneratorConfig::configure()
+            ->scanDirectory(__DIR__ . '/../Fixtures')
+            ->outputDir($this->outputDir);
+
+        $firstPass = $this->service->generateBuilders($config);
+        $this->assertGreaterThan(0, $firstPass);
+
+        $firstPassBuilderFiles = $this->findFilesRecursively($this->outputDir, 'Builder.php');
+        $this->assertNotEmpty($firstPassBuilderFiles, 'First pass should produce Builder files');
+
+        $config2 = PhpBuilderGeneratorConfig::configure()
+            ->scanDirectory(__DIR__ . '/../Fixtures')
+            ->scanDirectory($this->outputDir)
+            ->outputDir($this->outputDir);
+
+        $this->service->generateBuilders($config2);
+
+        $builderBuilderFiles = $this->findFilesRecursively($this->outputDir, 'BuilderBuilder.php');
+        $this->assertEmpty(
+            $builderBuilderFiles,
+            'No *BuilderBuilder files should be generated when outputDir is also scanned: ' .
+            implode(', ', $builderBuilderFiles)
+        );
+    }
+
+    public function testCustomBuilderSuffixIsRespectedWhenFilteringScannedClasses(): void
+    {
+        $config = PhpBuilderGeneratorConfig::configure()
+            ->scanDirectory(__DIR__ . '/../Fixtures')
+            ->outputDir($this->outputDir)
+            ->builderSuffix('Factory');
+
+        $firstPass = $this->service->generateBuilders($config);
+        $this->assertGreaterThan(0, $firstPass);
+
+        $factoryFiles = $this->findFilesRecursively($this->outputDir, 'Factory.php');
+        $this->assertNotEmpty($factoryFiles, 'First pass should produce *Factory files');
+
+        $config2 = PhpBuilderGeneratorConfig::configure()
+            ->scanDirectory(__DIR__ . '/../Fixtures')
+            ->scanDirectory($this->outputDir)
+            ->outputDir($this->outputDir)
+            ->builderSuffix('Factory');
+
+        $this->service->generateBuilders($config2);
+
+        $factoryFactoryFiles = $this->findFilesRecursively($this->outputDir, 'FactoryFactory.php');
+        $this->assertEmpty(
+            $factoryFactoryFiles,
+            'No *FactoryFactory files should be generated: ' . implode(', ', $factoryFactoryFiles)
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    private function findFilesRecursively(string $dir, string $suffix): array
+    {
+        if (!is_dir($dir)) {
+            return [];
+        }
+
+        $result = [];
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS)
+        );
+
+        foreach ($iterator as $file) {
+            if ($file->isFile() && str_ends_with($file->getFilename(), $suffix)) {
+                $result[] = $file->getPathname();
+            }
+        }
+
+        return $result;
+    }
+}

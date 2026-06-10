@@ -24,7 +24,7 @@ class BuilderGenerator implements GeneratorInterface
         $classContext = $context->classContext;
         $builderConfig = $classContext->builderConfig;
 
-        $builderClassName = $builderConfig->className ?? $classContext->getShortName() . 'Builder';
+        $builderClassName = $builderConfig->className ?? $classContext->getShortName() . $context->config->getBuilderSuffix();
         $builderNamespace = $this->getBuilderNamespace($classContext, $context);
         $properties = $classContext->getBuilderProperties();
 

@@ -15,6 +15,7 @@ class PhpBuilderGeneratorConfig
     private string $outputDir = 'generated/php-builder-generator/';
     private string $phpVersion = '8.2';
     private string $namespaceSuffix = '';
+    private string $builderSuffix = 'Builder';
     private bool $autoGenerate = true;
 
     public static function configure(): self
@@ -63,6 +64,13 @@ class PhpBuilderGeneratorConfig
         return $this;
     }
 
+    public function builderSuffix(string $suffix): self
+    {
+        $this->builderSuffix = $suffix;
+
+        return $this;
+    }
+
     public function autoGenerate(bool $value): self
     {
         $this->autoGenerate = $value;
@@ -95,6 +103,11 @@ class PhpBuilderGeneratorConfig
     public function getNamespaceSuffix(): string
     {
         return $this->namespaceSuffix;
+    }
+
+    public function getBuilderSuffix(): string
+    {
+        return $this->builderSuffix;
     }
 
     public function isAutoGenerate(): bool

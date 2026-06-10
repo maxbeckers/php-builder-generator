@@ -109,13 +109,27 @@ class BuilderService
         foreach ($config->getScanDirectories() as $scan) {
             $discovered = $this->discoverClassesInDirectory($scan['dir']);
             foreach ($discovered as $className) {
-                if (!isset($classes[$className])) {
+                if (!isset($classes[$className]) && !$this->isBuilderClass($className, $config->getBuilderSuffix())) {
                     $classes[$className] = $scan['config'];
                 }
             }
         }
 
         return $classes;
+    }
+
+    /**
+     * Returns true when the class is itself a generated builder and should not
+     * receive a builder of its own. Generated builders are named with the
+     * configured builder suffix (default "Builder"). Scanning the output directory
+     * alongside the source directory would otherwise produce FooBuilderBuilder
+     * on subsequent runs.
+     */
+    private function isBuilderClass(string $className, string $builderSuffix): bool
+    {
+        $shortName = substr($className, (int) strrpos($className, '\\') + 1);
+
+        return str_ends_with($shortName, $builderSuffix);
     }
 
     /**
