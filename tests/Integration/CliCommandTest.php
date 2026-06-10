@@ -37,7 +37,7 @@ class CliCommandTest extends TestCase
     public function testGenerateCommand(): void
     {
         $application = new Application();
-        $application->add(new GenerateBuildersCommand());
+        $application->addCommand(new GenerateBuildersCommand());
 
         $command = $application->find('generate');
         $commandTester = new CommandTester($command);
@@ -56,7 +56,7 @@ class CliCommandTest extends TestCase
     public function testCleanCommand(): void
     {
         $application = new Application();
-        $application->add(new GenerateBuildersCommand());
+        $application->addCommand(new GenerateBuildersCommand());
 
         $command = $application->find('generate');
         $commandTester = new CommandTester($command);

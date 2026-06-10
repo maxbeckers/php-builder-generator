@@ -28,7 +28,7 @@ use MaxBeckers\PhpBuilderGenerator\Command\GenerateBuildersCommand;
 use Symfony\Component\Console\Application;
 
 $application = new Application('PHP Builder Generator', '1.0.0');
-$application->add(new GenerateBuildersCommand());
+$application->addCommand(new GenerateBuildersCommand());
 $application->setDefaultCommand('generate', true);
 
 try {
